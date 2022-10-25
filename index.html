@@ -3,23 +3,38 @@
     <head>
         <title> Home </title>
         <link rel="icon" type="image/x-icon" href="favicon.png">
+        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="styles.css">
+        
+        <script src="https://kit.fontawesome.com/944eb371a4.js" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+        <script src="script.js"></script>
     </head>
     <body>
-        <div style="float:right">
-            <a href="TheGang/theGangHomepage.php">
-                <button type="button">Login</button>
-            </a>
-        </div>
-        <h1>
-            Chase Miller
-        </h1>
-        <p>
-            Welcome! This is my personal website. I don't know what I'm going to do with this website yet.
-            <ul>
-                <li> <a href="html/about.html">About</a> </li>
-                <li> <a href="html/contact.html">Contact</a> </li>
-                <li> <a href="html/random.html">Surprise Page</a> </li>
+        <div id="menubar">
+            <ul id="menubar-ulist">
+                <li id="menubar-list"><a href="index.html">Home</a></li>
+                <li id="menubar-list"><a href="html/about.html">About</a></li>
+                <li id="menubar-list"><a href="html/contact.html">Contact</a></li>
+                <li id="menubar-list"><a href="html/random.html">Surprise Page</a></li>
             </ul>
-        </p>
+        </div>
+        
+        <div id="tiles"></div>
+        
+        <h1 id="title" class="centered">
+            Welcome to
+            <span class="fancy">thecpmills.com</span>!
+        </h1>
+        
+        <div id="logo">
+            <image id="transparent" src="favicon.png" class="centered"></image>
+            <h1 id="caption" class="centered">
+                Chase P. Miller
+            </h1>
+        </div>
     </body>
 </html>
