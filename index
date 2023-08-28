@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> Home </title>
+        <link rel="icon" type="image/x-icon" href="favicon.png">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="styles.css">
+
+        <script src="https://kit.fontawesome.com/944eb371a4.js" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+        <script src="script.js"></script>
+    </head>
+
+    <style>
+        .button {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-size: cover;
+            background-position: center;
+            border: none;
+        }
+
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+    </style>
+
+    <body>
+        <div id="menubar">
+            <ul id="menubar-ulist">
+                <li id="menubar-list"><a href="index.html">Home</a></li>
+                <li id="menubar-list"><a href="html/about.html">About</a></li>
+                <li id="menubar-list"><a href="html/contact.html">Contact</a></li>
+                <li id="menubar-list"><a href="html/random.html">Surprise Page</a></li>
+            </ul>
+        </div>
+
+        <div class="center" id="title">
+            <h2>
+                This website is under maintenance. Please check back later.
+            </h2>
+        </div>
+
+        <image src="img/under-maintenance.png" alt="under-maintenance" id="under-maintenance-image" />
+
+        <!-- make a row of seven buttons -->
+        <div class="center" id="button-row">
+            <button class="button" style="background: url(img/contact-icons/youtube.png)" id="youtube"
+                onclick="window.open('')"></button>
+            <button class="button" style="background: url(img/contact-icons/twitch.png)" id="twitch"
+                onclick="window.open('')"></button>
+            <button class="button" style="background: url(img/contact-icons/twitter.png)" id="twitter"
+                onclick="window.open('')"></button>
+            <button class="button" style="background: url(img/contact-icons/instagram.png)" id="instagram"
+                onclick="window.open('')"></button>
+            <button class="button" style="background: url(img/contact-icons/tiktok.png)" id="tiktok"
+                onclick="window.open('')"></button>
+            <button class="button" style="background: url(img/contact-icons/github.png)" id="github"
+                onclick="window.open('')"></button>
+            <button class="button" style="background: url(img/contact-icons/linkedin.png)" id="linkedin"
+                onclick="window.open('')"></button>
+            <button class="button" style="background: url(img/contact-icons/letterboxd.png)" id="letterboxd"
+                onclick="window.open('')"></button>
+        </div>
+
+        <div id="footer">
+            <p id="footer-text"> &copy; 2022-2023 </p>
+        </div>
+    </body>
+</html>
