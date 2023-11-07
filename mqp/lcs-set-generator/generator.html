@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title> Longest Common Subsequence Set Generator </title>
+        <meta charset="utf-8">
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500&family=Rubik:wght@400;700&display=swap" rel="stylesheet">
+
+        <style>
+            button {
+                margin: 0 5px;
+            }
+
+            .center {
+                margin: auto;
+                width: 97.5%;
+                padding: 10px;
+            }
+
+            .content {
+                margin: auto;
+                width: 97.5%;
+                padding: 10px;
+                text-align: center;
+            }
+        </style>
+
+        <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+        <script src="svg-generator.js"></script>
+    </head>
+    <body onload="setup();">
+        <div class="content">
+            <div class="center">
+                <h1>Longest Common Subsequence Set Generator</h1>
+                <p>
+                    Enter two strings to generate a set of all possible longest common subsequences.
+                </p>
+                <p>
+                    <input type="text" id="x-box" name="x" size="25" oninput="fillTable();">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    <input type="text" id="y-box" name="y" size="25" oninput="fillTable();">
+                </p>
+                <div id="table"></div>
+                <div class="center" id="lcs-buttons"></div>
+            </div>
+        </div>
+    </body>
+</html>
