@@ -24,35 +24,25 @@ class MaterialGroup {
     }
 
     triangulate() {
-        var triangulatedFaces = [];
-
+        var newFaces = [];
         for (var i = 0; i < this.faces.length; i++) {
             var face = this.faces[i];
-
-            // triangulate face
             var vertexIndices = face.vertexIndices;
             var normalIndices = face.normalIndices;
             var uvIndices = face.uvIndices;
 
-            for (var j = 1; j < vertexIndices.length - 1; j++) {
-                var vertexIndex1 = vertexIndices[0];
-                var vertexIndex2 = vertexIndices[j];
-                var vertexIndex3 = vertexIndices[j + 1];
-
-                var normalIndex1 = normalIndices[0];
-                var normalIndex2 = normalIndices[j];
-                var normalIndex3 = normalIndices[j + 1];
-
-                var uvIndex1 = uvIndices[0];
-                var uvIndex2 = uvIndices[j];
-                var uvIndex3 = uvIndices[j + 1];
-
-                var triangulatedFace = new Face([vertexIndex1, vertexIndex2, vertexIndex3], [normalIndex1, normalIndex2, normalIndex3], [uvIndex1, uvIndex2, uvIndex3]);
-                triangulatedFaces.push(triangulatedFace);
+            if (vertexIndices.length === 3) {
+                newFaces.push(face);
+            } else {
+                for (var j = 1; j < vertexIndices.length - 1; j++) {
+                    var newVertexIndices = [vertexIndices[0], vertexIndices[j], vertexIndices[j + 1]];
+                    var newNormalIndices = [normalIndices[0], normalIndices[j], normalIndices[j + 1]];
+                    var newUVIndices = [uvIndices[0], uvIndices[j], uvIndices[j + 1]];
+                    newFaces.push(new Face(newVertexIndices, newNormalIndices, newUVIndices));
+                }
             }
         }
-
-        return new MaterialGroup(this.material, this.vertices, this.normals, this.uvs, triangulatedFaces);
+        this.faces = newFaces;
     }
 }
 
@@ -180,7 +170,7 @@ class OBJ {
         for (; currLine < objLines.length; currLine++) {
             var line = objLines[currLine];
 
-            if (line.charAt(0) === 'v') { // Vertex position definition
+            if (line.startsWith("v ")) { // Vertex position definition
                 var coords = line.match(/[+-]?([0-9]+[.])?[0-9]+/g);
                 this.vertices.push(vec4(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]), 1.0));
             } else if (line.startsWith("vt")) { // Vertex UV definition
@@ -204,7 +194,6 @@ class OBJ {
                 for (var i = 1; i < face.length; i++) {
                     // Extract the v/vt/vn statements into an array
                     var indices = line.match(/[0-9\/]+/g);
-                    console.log(indices);
 
                     // Account for how vt/vn can be omitted
                     var types = indices[0].match(/[\/]/g).length;
@@ -224,8 +213,13 @@ class OBJ {
                                 var firstSlashIndex = value.indexOf('/');
                                 var secondSlashIndex = value.indexOf('/', firstSlashIndex + 1);
 
+                                // split the values
+                                var vertexValue = value.substring(0, firstSlashIndex);
+                                var uvValue = value.substring(firstSlashIndex + 1, secondSlashIndex);
+                                var normalValue = value.substring(secondSlashIndex + 1);
+
                                 // get the vertex
-                                var vertexIndex = parseInt(value) - 1;
+                                var vertexIndex = parseInt(vertexValue) - 1;
                                 var vertex = this.vertices[vertexIndex];
 
                                 // if vertex is already in the list of vertices in the current material group, use that vertex
@@ -240,7 +234,7 @@ class OBJ {
                                 faceVertexIndices.push(vertexIndex);
 
                                 // get the uv
-                                var uvIndex = parseInt(value.substring(firstSlashIndex + 1)) - 1;
+                                var uvIndex = parseInt(uvValue) - 1;
                                 var uv = this.uvs[uvIndex];
 
                                 // if uv is already in the list of uvs in the current material group, use that uv
@@ -255,7 +249,7 @@ class OBJ {
                                 faceUVIndices.push(uvIndex);
 
                                 // get the normal
-                                var normalIndex = parseInt(value.substring(secondSlashIndex + 1)) - 1;
+                                var normalIndex = parseInt(normalValue) - 1;
                                 var normal = this.normals[normalIndex];
 
                                 // if normal is already in the list of normals in the current material group, use that normal

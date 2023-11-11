@@ -1,13 +1,14 @@
 class Model {
     constructor(fileName, shader) {
         this.meshes = [];
-        this.parseHardCoded(shader);
-        // this.parseFile(fileName, this.meshes, shader);
+        this.modelLoaded = false;
+        // this.parseHardCoded(shader);
+        this.parseFile(fileName, this.meshes, shader);
     }
 
     draw(shader, camera) {
         for (var i = 0; i < this.meshes.length; i++) {
-           this.meshes[i].draw(shader, camera);
+            this.meshes[i].draw(shader, camera);
         }
     }
 
@@ -130,18 +131,20 @@ class Model {
         var uvs = [];
         var indices = [];
 
+        var meshVertices = materialGroup.vertices;
+        var meshNormals = materialGroup.normals;
+        var meshUVs = materialGroup.uvs;
+
         for (var i = 0; i < materialGroup.faces.length; i++) {
             var face = materialGroup.faces[i];
-            var faceVertices = face.vertices;
-            var faceNormals = face.normals;
-            var faceUVs = face.uvs;
-            var faceIndices = face.indices;
+            var faceVertices = face.vertexIndices;
+            var faceNormals = face.normalIndices;
+            var faceUVs = face.uvIndices;
 
             for (var j = 0; j < faceVertices.length; j++) {
-                var vertex = faceVertices[j];
-                var normal = faceNormals[j];
-                var uv = faceUVs[j];
-                var index = faceIndices[j];
+                var vertex = meshVertices[faceVertices[j]];
+                var normal = meshNormals[faceNormals[j]];
+                var uv = meshUVs[faceUVs[j]];
 
                 vertices.push(vertex[0]);
                 vertices.push(vertex[1]);
@@ -154,7 +157,7 @@ class Model {
                 uvs.push(uv[0]);
                 uvs.push(uv[1]);
 
-                indices.push(index);
+                indices.push(indices.length);
             }
         }
 
@@ -202,64 +205,54 @@ class Model {
         return new Mesh(vertexList, indexList, material, textureList, shader);
     }
 
-    parseFile(fileName, meshList, shader) {
+    async parseFile(fileName, meshList, shader) {
         // get renderable objects
         var obj = new OBJ();
 
         // get obj file contents
-        var objRequest = new XMLHttpRequest();
-        objRequest.open("GET", "https://web.cs.wpi.edu/~jmcuneo/cs4731/project3/" + fileName);
-        objRequest.onreadystatechange = function () {
-            if (objRequest.readyState === 4 && objRequest.status === 200) {
-                obj.objFile = objRequest.responseText;
-                
-                // Split and sanitize OBJ file input
-                var objLines = obj.objFile.split('\n');
-                objLines = objLines.filter(line => {
-                    return (line.search(/\S/) !== -1);
-                });
-                objLines = objLines.map(line => {
-                    return line.trim();
-                });
+        const objResponse = await fetch("https://web.cs.wpi.edu/~jmcuneo/cs4731/project3/stopsign.obj");
+        obj.objFile = await objResponse.text();
 
-                // Get lines in OBJ file until material library definition
-                var currLine = 0;
-                var line = objLines[currLine];
-                while (!line.startsWith("mtllib")) { // Material library definition
-                    line = objLines[++currLine];
-                }
+        // Split and sanitize OBJ file input
+        var objLines = obj.objFile.split('\n');
+        objLines = objLines.filter(line => {
+            return (line.search(/\S/) !== -1);
+        });
+        objLines = objLines.map(line => {
+            return line.trim();
+        });
 
-                var materialLibraryName = line.split(" ")[1];
-
-                // get MTL file contents
-                var mtlFile = null;
-                var mtlRequest = new XMLHttpRequest();
-                mtlRequest.open("GET", "https://web.cs.wpi.edu/~jmcuneo/cs4731/project3/" + materialLibraryName);
-                mtlRequest.onreadystatechange = function () {
-                    if (mtlRequest.readyState === 4 && mtlRequest.status === 200) {
-                        mtlFile = mtlRequest.responseText;
-
-                        // parse MTL file
-                        obj.parseMTLFile(mtlFile);
-
-                        // parse OBJ file
-                        obj.parseOBJFile(objLines, currLine + 1);
-
-                        // get material groups
-                        var materialGroups = obj.getMaterialGroups();
-
-                        // construct meshes
-                        for (var i = 0; i < materialGroups.length; i++) {
-                            var materialGroup = materialGroups[i].triangulate();
-                            var material = materialGroups[i].material;
-                            var mesh = Model.constructMesh(materialGroup, material, shader);
-                            meshList.push(mesh);
-                        }
-                    }
-                }
-                mtlRequest.send(null);
-            }
+        // Get lines in OBJ file until material library definition
+        var currLine = 0;
+        var line = objLines[currLine];
+        while (!line.startsWith("mtllib")) { // Material library definition
+            line = objLines[++currLine];
         }
-        objRequest.send(null);
+
+        var materialLibraryName = line.split(" ")[1];
+
+        // get MTL file contents
+        const mtlResponse = await fetch("https://web.cs.wpi.edu/~jmcuneo/cs4731/project3/" + materialLibraryName);
+        var mtlFile = await mtlResponse.text();
+
+        // parse MTL file
+        obj.parseMTLFile(mtlFile);
+
+        // parse OBJ file
+        obj.parseOBJFile(objLines, currLine + 1);
+
+        // get material groups
+        var materialGroups = obj.getMaterialGroups();
+
+        // construct meshes
+        for (var i = 0; i < materialGroups.length; i++) {
+            var materialGroup = materialGroups[i];
+            materialGroup.triangulate();
+            var material = materialGroups[i].material;
+            var mesh = Model.constructMesh(materialGroup, material, shader);
+            meshList.push(mesh);
+        }
+
+        this.modelLoaded = true;
     }
 }

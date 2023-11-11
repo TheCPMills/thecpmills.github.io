@@ -6,7 +6,7 @@ class GenericCamera {
         this.setOrientation(orientation);
         this.worldUp = new vec3(0.0, 1.0, 0.0);
         this.projectionMatrix = projectionMatrix;
-        this.speed = 0.05;
+        this.speed = 0.1;
         this.sensitivity = 25.0;
     }
 
