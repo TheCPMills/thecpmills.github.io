@@ -3,7 +3,7 @@
 // =================
 var canvas, gl, shaderProgram;
 var width, height, aspectRatio;
-var n = 1;
+var n = q;
 var m = 1;
 
 // ==============================
@@ -40,6 +40,9 @@ var camera;
 function main() {
     // Create the window
     canvas = document.getElementById('window');
+
+    document.getElementById("n").value = n;
+    document.getElementById("m").value = m;
 
     // specify the viewport in the window
     gl = WebGLUtils.setupWebGL(canvas);
