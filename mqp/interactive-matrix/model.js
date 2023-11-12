@@ -116,9 +116,11 @@ class Model {
         // create mesh
         var mesh = new Mesh(vertexList, indexList, sampleMaterial, [], shader);
         this.meshes.push(mesh);
+
+        this.modelLoaded = true;
     }
 
-    static constructMesh(materialGroup, material, shader) {
+    static constructMesh(objectGroup, material, shader) {
         // extract material properties
         var diffuseColor = material.getKd();
         var textureMap = material.getMapKd();
@@ -131,12 +133,12 @@ class Model {
         var uvs = [];
         var indices = [];
 
-        var meshVertices = materialGroup.vertices;
-        var meshNormals = materialGroup.normals;
-        var meshUVs = materialGroup.uvs;
+        var meshVertices = objectGroup.vertices;
+        var meshNormals = objectGroup.normals;
+        var meshUVs = objectGroup.uvs;
 
-        for (var i = 0; i < materialGroup.faces.length; i++) {
-            var face = materialGroup.faces[i];
+        for (var i = 0; i < objectGroup.faces.length; i++) {
+            var face = objectGroup.faces[i];
             var faceVertices = face.vertexIndices;
             var faceNormals = face.normalIndices;
             var faceUVs = face.uvIndices;
@@ -210,7 +212,7 @@ class Model {
         var obj = new OBJ();
 
         // get obj file contents
-        const objResponse = await fetch("https://web.cs.wpi.edu/~jmcuneo/cs4731/project3/stopsign.obj");
+        const objResponse = await fetch("https://thecpmills.com/mqp/models/" + fileName);
         obj.objFile = await objResponse.text();
 
         // Split and sanitize OBJ file input
@@ -232,7 +234,7 @@ class Model {
         var materialLibraryName = line.split(" ")[1];
 
         // get MTL file contents
-        const mtlResponse = await fetch("https://web.cs.wpi.edu/~jmcuneo/cs4731/project3/" + materialLibraryName);
+        const mtlResponse = await fetch("https://thecpmills.com/mqp/models/" + materialLibraryName);
         var mtlFile = await mtlResponse.text();
 
         // parse MTL file
@@ -242,14 +244,14 @@ class Model {
         obj.parseOBJFile(objLines, currLine + 1);
 
         // get material groups
-        var materialGroups = obj.getMaterialGroups();
+        var objectGroups = obj.getObjects();
 
         // construct meshes
-        for (var i = 0; i < materialGroups.length; i++) {
-            var materialGroup = materialGroups[i];
-            materialGroup.triangulate();
-            var material = materialGroups[i].material;
-            var mesh = Model.constructMesh(materialGroup, material, shader);
+        for (var i = 0; i < objectGroups.length; i++) {
+            var objectGroup = objectGroups[i];
+            objectGroup.triangulate();
+            var material = objectGroups[i].material;
+            var mesh = Model.constructMesh(objectGroup, material, shader);
             meshList.push(mesh);
         }
 

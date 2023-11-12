@@ -24,9 +24,11 @@ var perspectiveMatrix, orthoMatrix;
 var perspectiveEye, orthoEye;
 var perspectiveOrientation, orthoOrientation;
 var perspectiveUp, orthoUp;
+var perspectiveStart = vec3(-Math.pow(2, n) + n, Math.pow(2, Math.min(n, m)) + Math.min(n, m), -Math.pow(2, m - 1) - m - 1);
+var orthoSize = n * m;
 var isPerspective = true;
 var isAnimating = false;
-var alpha = 0.01;
+var alpha = 0.01 * Math.min(n, m);
 var time = -1.0;
 var mouseLastX, mouseLastY;
 var mouseDown = false;
@@ -73,9 +75,9 @@ function main() {
     // initialize uniforms
     gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "modelMatrix"), false, flatten(modelMatrix));
     if (n <= 0 || m <= 0) {
-        gl.uniform1i(gl.getUniformLocation(shaderProgram, "useTexture"), 0);
-    } else {
         gl.uniform1i(gl.getUniformLocation(shaderProgram, "useTexture"), 1);
+    } else {
+        gl.uniform1i(gl.getUniformLocation(shaderProgram, "useTexture"), 0);
     }
 
     // render the scene
@@ -111,7 +113,7 @@ function render() {
 
         cameraInformationLabel.innerHTML = positionText + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + orientationText;
 
-        // rotate light around <0, 0, 0>
+        // rotate light around <0, 1, 0>
         // if (n <= 0 || m <= 0) {
         //     var mainLight = lights[0];
         //     if (mainLight.type == 1 || mainLight.type == 3) {
@@ -177,34 +179,57 @@ function initializeMLC(shader) {
         objectModel = new Model("referenceCube.obj", shader);
         modelMatrix = mat4();
     } else {
-        // Generate model
+        var shouldRotate = false;
+        if (n < m) {
+            var temp = n;
+            n = m;
+            m = temp;
+            shouldRotate = true;
+        }
+
         objectModel = new Model("model_" + n + "x" + m + ".obj", shader);
 
         // Generate model matrix
-        var offset = vec3(0.0, 0.0, 0.0); // vec3(-Math.pow(2, n - 1), 0, Math.pow(2, m - 1));
-        modelMatrix = mult(rotateAxis(0.0, vec3(0.0, 1.0, 0.0)), translate(offset)); // 
+        var offset = vec3(-Math.pow(2, n - 1), 0, Math.pow(2, m - 1));
+        modelMatrix = mult(rotateAxis(90.0, vec3(0.0, 1.0, 0.0)), translate(offset));
+
+        if (shouldRotate) {
+            modelMatrix = mult(rotateAxis(90.0, vec3(0.0, 1.0, 0.0)), modelMatrix);
+        }
     }
 
     // lighting initialization
     if (n <= 0 || m <= 0) {
-        // lights.push(new PointLight(vec3(-0.375, 0.75, 0.375), vec3(2.0, 3.5, 2.5), 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
+        lights.push(new PointLight(vec3(-0.375, 0.75, 0.375), vec3(2.0, 3.5, 2.5), 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
         // lights.push(new DirectionalLight(vec3(0.0, -1.0, -1.0), 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
         // lights.push(new SpotLight(vec3(-0.375, 0.75, -0.375), vec3(0.0, -1.0, 0.0), vec3(2.0, 3.5, 2.5), 35.0, 45.0, 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
     } else {
-        lights.push(new PointLight(vec3(0.0, Math.min(n, m) + 1, 0.0), vec3(2.0, 1.5, 0.5), 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
+        lights.push(new PointLight(vec3(0.0, Math.min(n, m) + 1.0, 0.0), vec3(2.0, 1.5, 0.5), 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
     }
 
     // camera initialization
     perspectiveMatrix = perspective(70.0, width / height, 0.1, 100.0);
-    orthoMatrix = ortho(-(2.0 + n) * aspectRatio, (2.0 + n) * aspectRatio, -(2.0 + n), (2.0 + n), 0.1, 100.0);
-    perspectiveEye = vec3(-2.0 - n, 2.0 + n, -2.0 - n);
-    orthoEye = vec3(0.0, 10.0 + n, 0.0);
+    orthoMatrix = ortho(-2 * orthoSize * aspectRatio, 2 * orthoSize * aspectRatio, -2 * orthoSize, 2 * orthoSize, 0.1, 100.0);
+    perspectiveEye = vec3(perspectiveStart[0], perspectiveStart[1], perspectiveStart[2]);
+    orthoEye = vec3(2 * n, 2 * orthoSize, 0.0);
     perspectiveOrientation = vec3(-1.0, 1.0, -1.0);
     orthoOrientation = vec3(0.0, 1.0, 0.0);
     perspectiveUp = vec3(0.0, 1.0, 0.0);
     orthoUp = vec3(0.0, 0.0, 1.0);
 
     camera = new GenericCamera(width, height, perspectiveEye, perspectiveOrientation, perspectiveMatrix); // custom camera
+    camera.speed = 0.1 * Math.min(n, m);
+}
+
+function changeMatrix() {
+    var nInput = document.getElementById("n");
+    var mInput = document.getElementById("m");
+
+    n = parseInt(nInput.value);
+    m = parseInt(mInput.value);
+
+    initializeMLC(shaderProgram);
+
 }
 
 var wPressed = false;
@@ -220,6 +245,12 @@ document.onkeydown = function (event) {
     if (!isAnimating) {
         if (key == 'Z') {
             isAnimating = true;
+        }
+        if (key == 'R') {
+            initializeMLC(shaderProgram);
+            isPerspective = true;
+            camera.isPerspective = true;
+            time = -1.0;
         }
 
         if (key == 'W') {

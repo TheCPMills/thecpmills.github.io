@@ -95,7 +95,7 @@
                     specularColor = texture2D(specular0, textureCoordinates) * specular;
                 } else {
                     ambientColor = vec4(materialAmbient * lightAmbience, 1.0);
-                    diffuseColor = vec4(color, 1.0) * diffuse;
+                    diffuseColor = vec4(color * diffuse, 1.0);
                     specularColor = vec4(materialSpecular * specular, 1.0);
                 }
 
@@ -187,20 +187,23 @@
             }
 
             void main() {
-                gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-                if (lightType == 1) {
-                    gl_FragColor += pointLight();
-                } else if (lightType == 2) {
-                    gl_FragColor += directionalLight();
-                } else if (lightType == 3) {
-                    gl_FragColor += spotLight();
-                } else {
+                if (lightType == 0) {
                     if (useTexture) {
-                        gl_FragColor += texture2D(diffuse0, textureCoordinates);
+                        gl_FragColor = texture2D(diffuse0, textureCoordinates);
                     } else {
-                        gl_FragColor += vec4(color, 1.0);
+                        gl_FragColor = vec4(color, 1.0);
                     }
-	            }
+                    return;
+                } else if (lightType == 1) {
+                    gl_FragColor = pointLight();
+                    return;
+                } else if (lightType == 2) {
+                    gl_FragColor = directionalLight();
+                    return;
+                } else if (lightType == 3) {
+                    gl_FragColor = spotLight();
+                    return;
+                }
             }
         </script>
         
@@ -244,6 +247,24 @@
             Space/Shift - Move camera up/down <br />
             Mouse - Rotate camera <br />
             Z - Toggle Perspective/Orthographic View <br />
+            R - Reset Camera <br />
+            <br />
+            <!-- add number boxes for n and m -->
+            <label for="n">n: </label>
+            <input type="number" id="n" name="n" min="1" max="8" />
+            <label for="m">m: </label>
+            <input type="number" id="m" name="m" min="1" max="8" />
+            <button onclick="changeMatrix()">Change Matrix</button>
+
+            <!-- prevent typing -->
+            <script>
+                document.getElementById("n").addEventListener("keydown", function(e) {
+                    e.preventDefault();
+                });
+                document.getElementById("m").addEventListener("keydown", function(e) {
+                    e.preventDefault();
+                });
+            </script>
         </div>
     </body>
 </html>
