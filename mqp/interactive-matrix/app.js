@@ -3,7 +3,7 @@
 // =================
 var canvas, gl, shaderProgram;
 var width, height, aspectRatio;
-var n = q;
+var n = 1;
 var m = 1;
 
 // ==============================
@@ -24,8 +24,6 @@ var perspectiveMatrix, orthoMatrix;
 var perspectiveEye, orthoEye;
 var perspectiveOrientation, orthoOrientation;
 var perspectiveUp, orthoUp;
-var perspectiveStart = vec3(-Math.pow(2, n) + n, Math.pow(2, Math.min(n, m)) + Math.min(n, m), -Math.pow(2, m - 1) - m - 1);
-var orthoSize = n * m;
 var isPerspective = true;
 var isAnimating = false;
 var alpha = 0.01 * Math.min(n, m);
@@ -211,13 +209,16 @@ function initializeMLC(shader) {
     }
 
     // camera initialization
+    var orthoSize = n * m;
+    var perspectiveStart = vec3(-Math.pow(2, n) + n, Math.pow(2, Math.min(n, m)) + Math.min(n, m), -Math.pow(2, m - 1) - m - 1);
+
     perspectiveMatrix = perspective(70.0, width / height, 0.1, 100.0);
-    orthoMatrix = ortho(-2 * orthoSize * aspectRatio, 2 * orthoSize * aspectRatio, -2 * orthoSize, 2 * orthoSize, 0.1, 100.0);
     perspectiveEye = vec3(perspectiveStart[0], perspectiveStart[1], perspectiveStart[2]);
-    orthoEye = vec3(2 * n, 2 * orthoSize, 0.0);
     perspectiveOrientation = vec3(-1.0, 1.0, -1.0);
-    orthoOrientation = vec3(0.0, 1.0, 0.0);
     perspectiveUp = vec3(0.0, 1.0, 0.0);
+    orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
+    orthoEye = vec3(Math.pow(2, n), Math.min(n, m) + 1, m / 2 - 1);
+    orthoOrientation = vec3(0.0, 1.0, 0.0);
     orthoUp = vec3(0.0, 0.0, 1.0);
 
     camera = new GenericCamera(width, height, perspectiveEye, perspectiveOrientation, perspectiveMatrix); // custom camera
@@ -232,7 +233,9 @@ function changeMatrix() {
     m = parseInt(mInput.value);
 
     initializeMLC(shaderProgram);
-
+    isPerspective = true;
+    camera.isPerspective = true;
+    time = -1.0;
 }
 
 var wPressed = false;
