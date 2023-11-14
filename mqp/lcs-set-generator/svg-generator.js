@@ -15,6 +15,16 @@ function fillTable() {
     var x = xBox.value;
     var y = yBox.value;
 
+    // if more than 15 characters, only take the first 15
+    if (x.length > 15) {
+        x = x.substring(0, 15);
+        xBox.value = x;
+    }
+    if (y.length > 15) {
+        y = y.substring(0, 15);
+        yBox.value = y;
+    }
+
     tableMatrix.innerHTML = "";
     tableMatrix.appendChild(generateSVGTable(x, y, 50, 50));
 }
