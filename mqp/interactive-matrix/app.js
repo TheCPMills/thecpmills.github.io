@@ -3,6 +3,7 @@
 // =================
 var canvas, gl, shaderProgram;
 var width, height, aspectRatio;
+var xBox, yBox, lcsButton;
 var n = 1;
 var m = 1;
 
@@ -42,6 +43,30 @@ function main() {
     document.getElementById("n").value = n;
     document.getElementById("m").value = m;
 
+    xBox = document.getElementById("x-box");
+    yBox = document.getElementById("y-box");
+    lcsButton = document.getElementById("lcs-button");
+
+    xBox.value = "";
+    yBox.value = "";
+    lcsButton.disabled = true;
+
+    xBox.onkeyup = function () {
+        if (xBox.value.length != n || yBox.value.length != m) {
+            lcsButton.disabled = true;
+        } else {
+            lcsButton.disabled = false;
+        }
+    }
+
+    yBox.onkeyup = function () {
+        if (xBox.value.length != n || yBox.value.length != m) {
+            lcsButton.disabled = true;
+        } else {
+            lcsButton.disabled = false;
+        }
+    }
+
     // specify the viewport in the window
     gl = WebGLUtils.setupWebGL(canvas);
 
@@ -74,7 +99,6 @@ function main() {
     initializeMLC(shaderProgram);
 
     // initialize uniforms
-    gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "modelMatrix"), false, flatten(modelMatrix));
     if (n <= 0 || m <= 0) {
         gl.uniform1i(gl.getUniformLocation(shaderProgram, "useTexture"), 1);
     } else {
@@ -114,16 +138,11 @@ function render() {
 
         cameraInformationLabel.innerHTML = positionText + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + orientationText;
 
-        // rotate light around <0, 1, 0>
-        // if (n <= 0 || m <= 0) {
-        //     var mainLight = lights[0];
-        //     if (mainLight.type == 1 || mainLight.type == 3) {
-        //         mainLight.position = rotate(mainLight.position, vec3(0.0, 1.0, 0.0), alpha);
-        //     }
-        // }
-
         // update lighting
         Light.updateAll(shaderProgram, lights);
+
+        // update model matrix
+        gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, "modelMatrix"), false, flatten(modelMatrix));
 
         // draw mesh
         objectModel.draw(shaderProgram, camera);
@@ -176,48 +195,25 @@ function toggleCameraType() {
 
 function initializeMLC(shader) {
     // model initialization
-    if (n <= 0 || m <= 0) {
-        objectModel = new Model("referenceCube.obj", shader);
-        modelMatrix = mat4();
-    } else {
-        var shouldRotate = false;
-        if (n < m) {
-            var temp = n;
-            n = m;
-            m = temp;
-            shouldRotate = true;
-        }
+    objectModel = new Model("model_" + n + "x" + m + ".obj", shader);
 
-        objectModel = new Model("model_" + n + "x" + m + ".obj", shader);
-
-        // Generate model matrix
-        var offset = vec3(-Math.pow(2, n - 1), 0, Math.pow(2, m - 1));
-        modelMatrix = mult(rotateAxis(90.0, vec3(0.0, 1.0, 0.0)), translate(offset));
-
-        if (shouldRotate) {
-            modelMatrix = mult(rotateAxis(90.0, vec3(0.0, 1.0, 0.0)), modelMatrix);
-        }
-    }
+    // Generate model matrix
+    var offset = vec3(-Math.pow(2, n - 1), 0, -Math.pow(2, m - 1));
+    modelMatrix = mult(rotateAxis(90.0, vec3(0.0, -1.0, 0.0)), translate(offset));
 
     // lighting initialization
-    if (n <= 0 || m <= 0) {
-        lights.push(new PointLight(vec3(-0.375, 0.75, 0.375), vec3(2.0, 3.5, 2.5), 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
-        // lights.push(new DirectionalLight(vec3(0.0, -1.0, -1.0), 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
-        // lights.push(new SpotLight(vec3(-0.375, 0.75, -0.375), vec3(0.0, -1.0, 0.0), vec3(2.0, 3.5, 2.5), 35.0, 45.0, 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
-    } else {
-        lights.push(new PointLight(vec3(0.0, Math.min(n, m) + 1.0, 0.0), vec3(2.0, 1.5, 0.5), 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
-    }
+    lights.push(new PointLight(vec3(0.0, Math.min(n, m) + 1.0, 0.0), vec3(2.0, 1.5, 0.5), 0.5, vec4(1.0, 0.98, 1.0, 1.0)));
 
     // camera initialization
-    var orthoSize = n * m;
-    var perspectiveStart = vec3(-Math.pow(2, n) + n, Math.pow(2, Math.min(n, m)) + Math.min(n, m), -Math.pow(2, m - 1) - m - 1);
+    var orthoSize = n * m + 1;
+    var perspectiveStart = vec3(-Math.pow(2, n), Math.pow(2, Math.min(n, m)) + Math.min(n, m), -Math.pow(2, m));
 
     perspectiveMatrix = perspective(70.0, width / height, 0.1, 100.0);
     perspectiveEye = vec3(perspectiveStart[0], perspectiveStart[1], perspectiveStart[2]);
     perspectiveOrientation = vec3(-1.0, 1.0, -1.0);
     perspectiveUp = vec3(0.0, 1.0, 0.0);
     orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
-    orthoEye = vec3(Math.pow(2, n), Math.min(n, m) + 1, m / 2 - 1);
+    orthoEye = vec3(0, orthoSize, 0);
     orthoOrientation = vec3(0.0, 1.0, 0.0);
     orthoUp = vec3(0.0, 0.0, 1.0);
 
@@ -232,10 +228,36 @@ function changeMatrix() {
     n = parseInt(nInput.value);
     m = parseInt(mInput.value);
 
+    xBox.value = "";
+    yBox.value = "";
+    lcsButton.disabled = true;
+
     initializeMLC(shaderProgram);
     isPerspective = true;
     camera.isPerspective = true;
     time = -1.0;
+    alpha = 0.01 * Math.min(n, m);
+}
+
+function changeLCS() {
+    // convert from binary string to int
+    var x = parseInt(xBox.value, 2);
+    var y = parseInt(yBox.value, 2);
+
+    // select mesh
+    var index = x + y * Math.pow(2, m);
+    objectModel.select(index);
+
+    var lcsLength = objectModel.meshes[index].vertices[0].position[1];
+    var lcsSet = findAllLCS(xBox.value, yBox.value);
+
+    var lcsLengthLabel = document.getElementById("lcs-length");
+    lcsLengthLabel.innerHTML = "Length of Longest Common Subsequence: " + lcsLength;
+
+    var lcsSetLabel = document.getElementById("lcs-set");
+    lcsSetLabel.innerHTML = "Set of Longest Common Subsequences: {" + lcsSet + "}";
+
+    console.log(index);
 }
 
 var wPressed = false;
@@ -271,10 +293,10 @@ document.onkeydown = function (event) {
         if (key == 'D') {
             dPressed = true;
         }
-        if (key == ' ') {
+        if (key == 'Q') {
             spacePressed = true;
         }
-        if (event.shiftKey) {
+        if (key == 'E') {
             shiftPressed = true;
         }
 
@@ -331,10 +353,10 @@ document.onkeyup = function (event) {
     if (key == 'D') {
         dPressed = false;
     }
-    if (key == ' ') {
+    if (key == 'Q') {
         spacePressed = false;
     }
-    if (event.shiftKey) {
+    if (key == 'E') {
         shiftPressed = false;
     }
 }

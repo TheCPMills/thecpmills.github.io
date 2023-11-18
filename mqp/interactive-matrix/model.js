@@ -1,8 +1,8 @@
 class Model {
     constructor(fileName, shader) {
         this.meshes = [];
+        this.selectedMesh = -1;
         this.modelLoaded = false;
-        // this.parseHardCoded(shader);
         this.parseFile(fileName, this.meshes, shader);
     }
 
@@ -12,112 +12,18 @@ class Model {
         }
     }
 
-    parseHardCoded(shader) {
-        // materials
-        var sampleMaterial = new Material("sampleMaterial");
-        sampleMaterial.ambient = vec3(1.0, 1.0, 1.0);
-        sampleMaterial.diffuse = vec3(0.0, 1.0, 0.0);
-        sampleMaterial.specular = vec3(0.0, 0.0, 1.0);
-        sampleMaterial.shininess = 10.0;
+    select(index) {
+        if (this.selectedMesh != -1) {
+            this.deselect();
+        }
+        this.meshes[index].select();
+        this.selectedMesh = index;
+    }
 
-        // colors
-        var red = vec3(1.0, 0.0, 0.0);
-        var cyan = vec3(0.0, 1.0, 1.0);
-        var green = vec3(0.0, 1.0, 0.0);
-        var magenta = vec3(1.0, 0.0, 1.0);
-        var blue = vec3(0.0, 0.0, 1.0);
-        var yellow = vec3(1.0, 1.0, 0.0);
+    deselect() {
+        this.meshes[this.selectedMesh].deselect();
+        this.selectedMesh = -1;
 
-        // uvs
-        var universalUV = vec2(0.0, 0.0);
-
-        // normals
-        var frontNormal = vec3(0.0, 0.0, 1.0);
-        var backNormal = vec3(0.0, 0.0, -1.0);
-        var rightNormal = vec3(1.0, 0.0, 0.0);
-        var leftNormal = vec3(-1.0, 0.0, 0.0);
-        var topNormal = vec3(0.0, 1.0, 0.0);
-        var bottomNormal = vec3(0.0, -1.0, 0.0);
-
-        // vertices
-        var positions = [
-            vec3(0.5, 0.5, 0.5),
-            vec3(-0.5, 0.5, 0.5),
-            vec3(-0.5, -0.5, 0.5),
-            vec3(0.5, -0.5, 0.5),
-            vec3(0.5, 0.5, -0.5),
-            vec3(-0.5, 0.5, -0.5),
-            vec3(-0.5, -0.5, -0.5),
-            vec3(0.5, -0.5, -0.5)
-        ];
-
-        var rightTopFront = 0;
-        var leftTopFront = 1;
-        var leftBottomFront = 2;
-        var rightBottomFront = 3;
-        var rightTopBack = 4;
-        var leftTopBack = 5;
-        var leftBottomBack = 6;
-        var rightBottomBack = 7;
-
-        var vertexList = [
-            new Vertex(positions[rightTopFront], frontNormal, cyan, universalUV),
-            new Vertex(positions[rightBottomFront], frontNormal, cyan, universalUV),
-            new Vertex(positions[leftBottomFront], frontNormal, cyan, universalUV),
-            new Vertex(positions[leftTopFront], frontNormal, cyan, universalUV),
-
-            new Vertex(positions[leftTopBack], backNormal, red, universalUV),
-            new Vertex(positions[leftBottomBack], backNormal, red, universalUV),
-            new Vertex(positions[rightBottomBack], backNormal, red, universalUV),
-            new Vertex(positions[rightTopBack], backNormal, red, universalUV),
-
-            new Vertex(positions[rightTopBack], rightNormal, magenta, universalUV),
-            new Vertex(positions[rightBottomBack], rightNormal, magenta, universalUV),
-            new Vertex(positions[rightBottomFront], rightNormal, magenta, universalUV),
-            new Vertex(positions[rightTopFront], rightNormal, magenta, universalUV),
-
-            new Vertex(positions[leftTopFront], leftNormal, green, universalUV),
-            new Vertex(positions[leftBottomFront], leftNormal, green, universalUV),
-            new Vertex(positions[leftBottomBack], leftNormal, green, universalUV),
-            new Vertex(positions[leftTopBack], leftNormal, green, universalUV),
-
-            new Vertex(positions[rightTopBack], topNormal, blue, universalUV),
-            new Vertex(positions[rightTopFront], topNormal, blue, universalUV),
-            new Vertex(positions[leftTopFront], topNormal, blue, universalUV),
-            new Vertex(positions[leftTopBack], topNormal, blue, universalUV),
-
-            new Vertex(positions[rightBottomFront], bottomNormal, yellow, universalUV),
-            new Vertex(positions[rightBottomBack], bottomNormal, yellow, universalUV),
-            new Vertex(positions[leftBottomBack], bottomNormal, yellow, universalUV),
-            new Vertex(positions[leftBottomFront], bottomNormal, yellow, universalUV),
-        ];
-
-        // indices
-        var indexList = [
-            0, 1, 2,
-            0, 2, 3,
-
-            4, 5, 6,
-            4, 6, 7,
-
-            8, 9, 10,
-            8, 10, 11,
-
-            12, 13, 14,
-            12, 14, 15,
-
-            16, 17, 18,
-            16, 18, 19,
-
-            20, 21, 22,
-            20, 22, 23,
-        ];
-
-        // create mesh
-        var mesh = new Mesh(vertexList, indexList, sampleMaterial, [], shader);
-        this.meshes.push(mesh);
-
-        this.modelLoaded = true;
     }
 
     static constructMesh(objectGroup, material, shader) {
@@ -208,6 +114,12 @@ class Model {
     }
 
     async parseFile(fileName, meshList, shader) {
+        // initialize matrix dimensions
+        // var indexOf_ = fileName.indexOf("_");
+        // var indexOfX = fileName.indexOf("x");
+        // this.n = parseInt(fileName.substring(indexOf_ + 1, indexOfX));
+        // this.m = parseInt(fileName.substring(indexOfX + 1, fileName.length - 4));
+        
         // get renderable objects
         var obj = new OBJ();
 
@@ -243,8 +155,8 @@ class Model {
         // parse OBJ file
         obj.parseOBJFile(objLines, currLine + 1);
 
-        // get material groups
-        var objectGroups = obj.getObjects();
+        // get object groups
+        var objectGroups = obj.getObjectGroups();
 
         // construct meshes
         for (var i = 0; i < objectGroups.length; i++) {

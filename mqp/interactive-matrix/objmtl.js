@@ -50,6 +50,7 @@ class ObjectGroup {
 class Material {
     constructor(name) {
         this.name = name;
+        this.vertexCount = 1;
         this.ambient = vec3();
         this.diffuse = vec3();
         this.specular = vec3();
@@ -75,14 +76,21 @@ class Material {
         return this.bumpMap;
     }
 
-    setUniforms(shader) {
-        if (this.ambient === null || this.specular === null || this.shininess === null) {
-            throw new Error("Material is not fully defined. Please specify at least the ambient color, specular color, and shininess of the material.");
+    static materialArray(material) {
+        var materialArray = [];
+        for (var i = 0; i < material.vertexCount; i++) {
+            materialArray.push(material.ambient[0]);
+            materialArray.push(material.ambient[1]);
+            materialArray.push(material.ambient[2]);
+            materialArray.push(material.diffuse[0]);
+            materialArray.push(material.diffuse[1]);
+            materialArray.push(material.diffuse[2]);
+            materialArray.push(material.specular[0]);
+            materialArray.push(material.specular[1]);
+            materialArray.push(material.specular[2]);
+            materialArray.push(material.shininess);
         }
-
-        gl.uniform3fv(gl.getUniformLocation(shader, "materialAmbient"), flatten(this.ambient));
-        gl.uniform3fv(gl.getUniformLocation(shader, "materialSpecular"), flatten(this.specular));
-        gl.uniform1f(gl.getUniformLocation(shader, "materialShininess"), this.shininess);
+        return materialArray;
     }
 }
 
@@ -114,7 +122,7 @@ class OBJ {
         }
     }
 
-    getObjects() {
+    getObjectGroups() {
         return this.objects;
     }
 
@@ -165,133 +173,29 @@ class OBJ {
         // Remove the null material
         this.materials.shift();
     }
-    
-    // parseOBJFile(objLines, currLine) {
-    //     var currentObjectIndex;
-    //     for (; currLine < objLines.length; currLine++) {
-    //         var line = objLines[currLine];
-
-    //         if (line.startsWith("v ")) { // Vertex position definition
-    //             var coords = line.match(/[+-]?([0-9]+[.])?[0-9]+/g);
-    //             this.vertices.push(vec4(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]), 1.0));
-    //         } else if (line.startsWith("vt")) { // Vertex UV definition
-    //             var coords = line.match(/[+-]?([0-9]+[.])?[0-9]+/g);
-    //             this.uvs.push(vec2(parseFloat(coords[0]), 1.0 - parseFloat(coords[1])));
-    //         } else if (line.startsWith("vn")) { // Vertex normal definition
-    //             var coords = line.match(/[+-]?([0-9]+[.])?[0-9]+/g);
-    //             this.normals.push(vec4(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]), 0.0));
-    //         } else if (line.startsWith("o ")) { // Object definition
-    //             var objectName = line.split(" ")[1];
-    //             this.objects.push(new ObjectGroup(objectName));
-    //             currentObjectIndex = this.objects.length - 1;
-    //         } else if (line.startsWith("usemtl")) { // Material use definition
-    //             var materialName = line.split(" ")[1];
-    //             var material = this.getMaterial(materialName);
-    //             this.objects[currentObjectIndex].material = material;
-    //         } else if (line.charAt(0) === 'f') {
-    //             var currentObject = this.objects[currentObjectIndex];
-    //             var faceVertexIndices = [];
-    //             var faceUVIndices = [];
-    //             var faceNormalIndices = [];
-
-    //             // Extract the v/vt/vn statements into an array
-    //             var indices = line.match(/[0-9\/]+/g);
-
-    //             // Account for how vt/vn can be omitted
-    //             var types = indices[0].match(/[\/]/g).length;
-
-    //             if (types === 0) { // Only v provided
-    //                 throw new Error("Vertex normals and UV coordinates are required.");
-    //             }
-    //             else if (types === 1) { // v and vt provided
-    //                 throw new Error("Vertex normals are required.");
-    //             }
-    //             else if (types === 2) { // v, maybe vt, and vn provided
-    //                 var slashIndex = indices[0].indexOf('/');
-    //                 if (indices[0].charAt(slashIndex + 1) === '/') { // vt omitted
-    //                     throw new Error("Vertex UV coordinates are required.");
-    //                 } else { // vt provided
-    //                     indices.forEach(value => {
-    //                         var firstSlashIndex = value.indexOf('/');
-    //                         var secondSlashIndex = value.indexOf('/', firstSlashIndex + 1);
-
-    //                         // split the values
-    //                         var vertexValue = value.substring(0, firstSlashIndex);
-    //                         var uvValue = value.substring(firstSlashIndex + 1, secondSlashIndex);
-    //                         var normalValue = value.substring(secondSlashIndex + 1);
-
-    //                         // get the vertex
-    //                         var vertexIndex = parseInt(vertexValue) - 1;
-    //                         var vertex = this.vertices[vertexIndex];
-
-    //                         // if vertex is already in the list of vertices in the current material group, use that vertex
-    //                         // otherwise, add the vertex to the list of vertices in the current material group
-    //                         vertexIndex = currentObject.vertices.indexOf(vertex);
-    //                         if (vertexIndex === -1) {
-    //                             currentObject.addVertex(vertex);
-    //                             vertexIndex = currentObject.vertices.length - 1;
-    //                         }
-
-    //                         // add the vertex index to the face's vertex indices
-    //                         faceVertexIndices.push(vertexIndex);
-
-    //                         // get the uv
-    //                         var uvIndex = parseInt(uvValue) - 1;
-    //                         var uv = this.uvs[uvIndex];
-
-    //                         // if uv is already in the list of uvs in the current material group, use that uv
-    //                         // otherwise, add the uv to the list of uvs in the current material group
-    //                         uvIndex = currentObject.uvs.indexOf(uv);
-    //                         if (uvIndex === -1) {
-    //                             currentObject.addUV(uv);
-    //                             uvIndex = currentObject.uvs.length - 1;
-    //                         }
-
-    //                         // add the uv index to the face's uv indices
-    //                         faceUVIndices.push(uvIndex);
-
-    //                         // get the normal
-    //                         var normalIndex = parseInt(normalValue) - 1;
-    //                         var normal = this.normals[normalIndex];
-
-    //                         // if normal is already in the list of normals in the current material group, use that normal
-    //                         // otherwise, add the normal to the list of normals in the current material group
-    //                         normalIndex = currentObject.normals.indexOf(normal);
-    //                         if (normalIndex === -1) {
-    //                             currentObject.addNormal(normal);
-    //                             normalIndex = currentObject.normals.length - 1;
-    //                         }
-
-    //                         // add the normal index to the face's normal indices
-    //                         faceNormalIndices.push(normalIndex);
-    //                     });
-    //                 }
-    //             }
-
-    //             // add the face to the current material group
-    //             currentObject.addFace(new Face(faceVertexIndices, faceNormalIndices, faceUVIndices));
-    //         }
-    //     }
-    // }
 
     parseOBJFile(objLines, currLine) {
-        var currentObjectIndex = 0;
-
-        this.objects.push(new ObjectGroup("Test"));
-        this.objects[currentObjectIndex].material = this.materials[0];
+        var currentObjectIndex = -1;
 
         for (; currLine < objLines.length; currLine++) {
             var line = objLines[currLine];
 
             if (line.startsWith("v ")) { // Vertex position definition
                 var coords = line.match(/[+-]?([0-9]+[.])?[0-9]+/g);
-                this.vertices.push(vec4(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]), 1.0));
+                this.vertices.push(vec3(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2])));
             } else if (line.startsWith("vt")) { // Vertex UV definition
                 var coords = line.match(/[+-]?([0-9]+[.])?[0-9]+/g);
                 this.uvs.push(vec2(parseFloat(coords[0]), 1.0 - parseFloat(coords[1])));
             } else if (line.startsWith("vn")) { // Vertex normal definition
                 var coords = line.match(/[+-]?([0-9]+[.])?[0-9]+/g);
-                this.normals.push(vec4(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2]), 0.0));
+                this.normals.push(vec3(parseFloat(coords[0]), parseFloat(coords[1]), parseFloat(coords[2])));
+            } else if (line.charAt(0) === 'g') { // Object group definition
+                var objectName = line.split(" ")[1];
+                this.objects.push(new ObjectGroup(objectName));
+                currentObjectIndex++;
+            } else if (line.startsWith("usemtl")) { // Material definition
+                var materialName = line.split(" ")[1];
+                this.objects[currentObjectIndex].material = this.getMaterial(materialName);
             } else if (line.charAt(0) === 'f') {
                 var currentObject = this.objects[currentObjectIndex];
                 var faceVertexIndices = [];

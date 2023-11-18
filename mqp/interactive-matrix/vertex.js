@@ -1,8 +1,7 @@
 class Vertex {
-    constructor(position, normal, color, uv) {
+    constructor(position, normal, uv) {
         this.position = position;
         this.normal = normal;
-        this.color = color;
         this.uv = uv;
     }
 
@@ -31,9 +30,6 @@ class Vertex {
             vertexArray.push(vertices[i].normal[0]);
             vertexArray.push(vertices[i].normal[1]);
             vertexArray.push(vertices[i].normal[2]);
-            vertexArray.push(vertices[i].color[0]);
-            vertexArray.push(vertices[i].color[1]);
-            vertexArray.push(vertices[i].color[2]);
             vertexArray.push(vertices[i].uv[0]);
             vertexArray.push(vertices[i].uv[1]);
         }

@@ -6,6 +6,8 @@ class VBO {
         // check if data is a list of vertices
         if (data[0] instanceof Vertex) {
             gl.bufferData(gl.ARRAY_BUFFER, flatten(Vertex.vertexArray(data)), gl.STATIC_DRAW);
+        } else if (data instanceof Material) {
+            gl.bufferData(gl.ARRAY_BUFFER, flatten(Material.materialArray(data)), gl.STATIC_DRAW);
         } else {
             gl.bufferData(gl.ARRAY_BUFFER, flatten(this.vectorArray(data)), gl.STATIC_DRAW);
         }        

@@ -5,10 +5,32 @@
         <link rel="icon" type="image/x-icon" href="img/favicon.ico">
     </head>
     <body>
-        <ul>
-            <li><a href="../index.html">Home</a></li>
-            <li><a href="interactive-matrix/explorer.html">Interactive Matrix Explorer</a></li>
-            <li><a href="lcs-set-generator/generator.html">LCS Set Generator</a></li>
-        </ul>
+        <!-- add back to home button -->
+        <button onclick="window.location.href='../index.html'">Home</button>
+
+
+
+        <div style="text-align: center">
+            <h1>Statistics of Subsequences Directory</h1>
+            <p>Explore the tools and visualizations available for the Statistics of Subsequences project.</p>
+            
+            <div style="width: 30%; margin-left: 12.5%; float: left; border: 1px solid black">
+                <h2>Interactive Matrix Explorer</h2>
+                <p>Explore the matrix of longest common subsequences for strings of a specified length.</p>
+                <a href="interactive-matrix/explorer.html">
+                    <img src="img/interactive-matrix.png" alt="Interactive Matrix Explorer" width="300" height="300">
+                </a>
+                <br /><br />
+            </div>
+
+            <div style="width: 30%; margin-right: 12.5%; float: right; border: 1px solid black">
+                <h2>Longest Common Subsequence Explorer</h2>
+                <p>Explore the longest common subsequences of two strings.</p>
+                <a href="lcs-set-generator/generator.html">
+                    <img src="img/lcs-set-generator.png" alt="LCS Set Generator" width="300" height="300">
+                </a>
+                <br /><br />
+            </div>
+        </div>
     </body>
 </html>
