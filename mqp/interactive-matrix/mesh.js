@@ -5,11 +5,13 @@ class Mesh {
         this.material = material;
         this.backupMaterial = material;
         this.textures = textures;
-        this.isSelected = false;
+        this.isSelected = 0;
         this.vao = new VAO();        
     }
 
     select() {
+        this.material = this.backupMaterial;
+
         var selectedMaterial = new Material("selectedMaterial");
         selectedMaterial.ambient = vec3(1.0, 0.0, 0.0);
         selectedMaterial.diffuse = vec3(1.0, 0.0, 0.0);
@@ -18,14 +20,27 @@ class Mesh {
 
         this.backupMaterial = this.material;
         this.material = selectedMaterial;
-        this.isSelected = true;
+        this.isSelected = 1;
+    }
+
+    selectK() {
+        this.material = this.backupMaterial;
+
+        var selectedMaterial = new Material("selectedMaterial");
+        selectedMaterial.ambient = vec3(1.0, 0.75, 0.8);
+        selectedMaterial.diffuse = vec3(1.0, 0.75, 0.8);
+        selectedMaterial.specular = vec3(1.0, 0.75, 0.8);
+        selectedMaterial.shininess = 10.0;
+
+        this.backupMaterial = this.material;
+        this.material = selectedMaterial;
+        this.isSelected = 2;
     }
 
     deselect() {
         this.material = this.backupMaterial;
-        this.isSelected = false;
+        this.isSelected = 0;
     }
-
 
     draw(shader, camera) {
         gl.useProgram(shader);

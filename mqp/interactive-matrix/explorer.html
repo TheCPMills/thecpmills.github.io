@@ -247,15 +247,17 @@
     <body onload="main()">
         <div class="content">
             <h1>Interactive Matrix Explorer</h1>
-            <div style="width: 30%; margin-left: 12.5%; float: left;">
+            <div style="width: 30%; margin-top: 0.5%; margin-left: 6.25%; float: left;">
                 <canvas id="window" width="800" height="600">
                     Your browser does not support HTML5
                 </canvas>
                 <br />
-                <label id="cameraInformation"></label>
+                <div style="width: 184%">
+                    <label id="cameraInformation"></label>
+                </div>
                 <br />
             </div>
-            <div style="width: 30%; margin-top: 0.5%; margin-right: 12.5%; float: right;">
+            <div style="width: 30%; margin-right: 6.25%; float: right;">
                 <div id="matrixDimensions" style="border: 1px solid black;">
                     <h4>Matrix Dimensions:</h4>
                     <label for="n">n: </label>
@@ -279,9 +281,9 @@
                 <br /><br />
                 <div id="lcsInformation" style="border: 1px solid black;">
                     <h4>Enter Two Strings:</h4>
-                    &nbsp;&nbsp; <input type="text" id="x-box" name="x" size="25">
+                    &nbsp;&nbsp; <input type="text" id="x-box" name="x" size="10">
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <input type="text" id="y-box" name="y" size="25"> &nbsp;&nbsp;
+                    <input type="text" id="y-box" name="y" size="10"> &nbsp;&nbsp;
                     <br /><br />
                     <button id="lcs-button" onclick="changeLCS()">Update LCS</button>
                     <br /><br />
@@ -296,6 +298,8 @@
                     k: <input type="text" id="k-box" name="k" size="5"> &nbsp;&nbsp;
                     <button id="k-button" onclick="changeK()">Update k</button>
                     <br /><br />
+                    <label id="zBox">New Second String: -</label>
+                    <br /><br />
                     <label id="k-length">Length of Longest Common Subsequence: 0</label>
                     <br />
                     <label id="k-set">Set of Longest Common Subsequences: {}</label>
@@ -303,7 +307,6 @@
                 </div>
             </div>
             <div style="clear: both;"></div>
-            <br />
             <div>
                 <h3>How To Use:</h3>
                 WASD - Move camera <br />

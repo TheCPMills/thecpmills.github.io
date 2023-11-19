@@ -2,6 +2,7 @@ class Model {
     constructor(fileName, shader) {
         this.meshes = [];
         this.selectedMesh = -1;
+        this.kSelectedMesh = -1;
         this.modelLoaded = false;
         this.parseFile(fileName, this.meshes, shader);
     }
@@ -14,16 +15,33 @@ class Model {
 
     select(index) {
         if (this.selectedMesh != -1) {
-            this.deselect();
+            this.deselectAll();
         }
         this.meshes[index].select();
         this.selectedMesh = index;
     }
 
+    selectK(index) {
+        if (this.kSelectedMesh != -1) {
+            this.deselectK();
+        }
+        this.meshes[index].selectK();
+        this.kSelectedMesh = index;
+    }
+
     deselect() {
         this.meshes[this.selectedMesh].deselect();
         this.selectedMesh = -1;
+    }
 
+    deselectK() {
+        this.meshes[this.kSelectedMesh].deselect();
+        this.kSelectedMesh = -1;
+    }
+
+    deselectAll() {
+        this.deselect();
+        this.deselectK();
     }
 
     static constructMesh(objectGroup, material, shader) {

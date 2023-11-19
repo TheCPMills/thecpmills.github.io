@@ -447,6 +447,7 @@ function rotateX(theta) {
       0.0,  0.0,  0.0, 1.0 );
   return rx;
 }
+
 function rotateY(theta) {
   var c = Math.cos( radians(theta) );
   var s = Math.sin( radians(theta) );
@@ -456,6 +457,7 @@ function rotateY(theta) {
       0.0, 0.0,  0.0, 1.0 );
   return ry;
 }
+
 function rotateZ(theta) {
   var c = Math.cos( radians(theta) );
   var s = Math.sin( radians(theta) );
@@ -481,6 +483,60 @@ function scalem( x, y, z )
     result[0][0] = x;
     result[1][1] = y;
     result[2][2] = z;
+
+    return result;
+}
+
+//----------------------------------------------------------------------------
+
+function reflection( plane )
+{
+    var result = mat4();
+
+    var a = plane.x;
+    var b = plane.y;
+    var c = plane.z;
+    var d = plane.w;
+
+    var a2 = a * a;
+    var b2 = b * b;
+    var c2 = c * c;
+
+    result[0][0] = 1 - 2 * a2;
+    result[0][1] = -2 * a * b;
+    result[0][2] = -2 * a * c;
+    result[0][3] = -2 * a * d;
+    result[1][0] = -2 * a * b;
+    result[1][1] = 1 - 2 * b2;
+    result[1][2] = -2 * b * c;
+    result[1][3] = -2 * b * d;
+    result[2][0] = -2 * a * c;
+    result[2][1] = -2 * b * c;
+    result[2][2] = 1 - 2 * c2;
+    result[2][3] = -2 * c * d;
+
+    return result;
+}
+
+//----------------------------------------------------------------------------
+
+function shear( xShear, yShear, zShear)
+{
+    var result = mat4();
+
+    var x = xShear.x;
+    var y = xShear.y;
+    var z = yShear.x;
+    var w = yShear.y;
+    var v = zShear.x;
+    var u = zShear.y;
+
+    result[0][1] = x;
+    result[0][2] = y;
+    result[1][0] = z;
+    result[1][2] = w;
+    result[2][0] = v;
+    result[2][1] = u;
 
     return result;
 }

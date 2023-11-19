@@ -4,6 +4,8 @@
 var canvas, gl, shaderProgram;
 var width, height, aspectRatio;
 var xBox, yBox, lcsButton;
+var kBox, kButton;
+var lcsGenerated;
 var n = 1;
 var m = 1;
 
@@ -46,10 +48,15 @@ function main() {
     xBox = document.getElementById("x-box");
     yBox = document.getElementById("y-box");
     lcsButton = document.getElementById("lcs-button");
+    kBox = document.getElementById("k-box");
+    kButton = document.getElementById("k-button");
+    lcsGenerated = false;
 
     xBox.value = "";
     yBox.value = "";
     lcsButton.disabled = true;
+    kBox.value = "";
+    kButton.disabled = true;
 
     xBox.onkeyup = function () {
         if (xBox.value.length != n || yBox.value.length != m) {
@@ -64,6 +71,15 @@ function main() {
             lcsButton.disabled = true;
         } else {
             lcsButton.disabled = false;
+        }
+    }
+
+    kBox.onkeyup = function () {
+        var k = parseInt(kBox.value);
+        if (kBox.value.length > 0 && (k >= 0 && k < m) && lcsGenerated) {
+            kButton.disabled = false;
+        } else {
+            kButton.disabled = true;
         }
     }
 
@@ -195,7 +211,7 @@ function toggleCameraType() {
 
 function initializeMLC(shader) {
     // model initialization
-    objectModel = new Model("model_" + n + "x" + m + ".obj", shader);
+    objectModel = new Model("model_" + m + "x" + n + ".obj", shader);
 
     // Generate model matrix
     var offset = vec3(-Math.pow(2, n - 1), 0, -Math.pow(2, m - 1));
@@ -206,7 +222,7 @@ function initializeMLC(shader) {
 
     // camera initialization
     var orthoSize = n * m + 1;
-    var perspectiveStart = vec3(-Math.pow(2, n), Math.pow(2, Math.min(n, m)) + Math.min(n, m), -Math.pow(2, m));
+    var perspectiveStart = vec3(-Math.pow(2, n), Math.pow(2, Math.min(n, m)), -Math.pow(2, m));
 
     perspectiveMatrix = perspective(70.0, width / height, 0.1, 100.0);
     perspectiveEye = vec3(perspectiveStart[0], perspectiveStart[1], perspectiveStart[2]);
@@ -230,8 +246,16 @@ function changeMatrix() {
 
     xBox.value = "";
     yBox.value = "";
+    document.getElementById("lcs-length").innerHTML = "Length of Longest Common Subsequence: 0";
+    document.getElementById("lcs-set").innerHTML = "Set of Longest Common Subsequences: {}";
     lcsButton.disabled = true;
-
+    lcsGenerated = false;
+    kBox.value = "";
+    document.getElementById("zBox").innerHTML = "New Second String: -";
+    document.getElementById("k-length").innerHTML = "Length of Longest Common Subsequence: 0";
+    document.getElementById("k-set").innerHTML = "Set of Longest Common Subsequences: {}";
+    kButton.disabled = true;
+    
     initializeMLC(shaderProgram);
     isPerspective = true;
     camera.isPerspective = true;
@@ -245,7 +269,7 @@ function changeLCS() {
     var y = parseInt(yBox.value, 2);
 
     // select mesh
-    var index = x + y * Math.pow(2, m);
+    var index = x + y * Math.pow(2, n);
     objectModel.select(index);
 
     var lcsLength = objectModel.meshes[index].vertices[0].position[1];
@@ -257,7 +281,43 @@ function changeLCS() {
     var lcsSetLabel = document.getElementById("lcs-set");
     lcsSetLabel.innerHTML = "Set of Longest Common Subsequences: {" + lcsSet + "}";
 
-    console.log(index);
+    lcsGenerated = true;
+    var k = parseInt(kBox.value);
+    if (kBox.value.length > 0 && (k >= 0 && k < m)) {
+        kButton.disabled = false;
+    }
+}
+
+function changeK() {
+    var k = parseInt(kBox.value);
+
+    // convert from binary string to int
+    var x = parseInt(xBox.value, 2);
+    var y = parseInt(yBox.value, 2);
+
+    // complement kth bit from left
+    var z = y ^ (1 << (yBox.value.length- 1 - k));
+    var zBox = z.toString(2);
+
+    // pad with zeros
+    while (zBox.length < m) {
+        zBox = "0" + zBox;
+    }
+
+    document.getElementById("zBox").innerHTML = "New Second String: " + zBox;
+
+    // select mesh
+    var index = x + z * Math.pow(2, n);
+    objectModel.selectK(index);
+
+    var lcsLength = objectModel.meshes[index].vertices[0].position[1];
+    var lcsSet = findAllLCS(xBox.value, zBox);
+
+    var kLengthLabel = document.getElementById("k-length");
+    kLengthLabel.innerHTML = "Length of Longest Common Subsequence: " + lcsLength;
+
+    var kSetLabel = document.getElementById("k-set");
+    kSetLabel.innerHTML = "Set of Longest Common Subsequences: {" + lcsSet + "}";
 }
 
 var wPressed = false;
