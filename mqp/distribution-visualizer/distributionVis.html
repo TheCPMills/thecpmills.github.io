@@ -35,11 +35,22 @@
         <div class="center">
             <h1>Subsequence Distribution Visualizer</h1>
             <label for="n">n: </label>
-            <input type="number" id="n" name="n" min="1" max="10" value="1" />
+            <input type="number" id="n" name="n" min="1" max="10" value="1" size="5" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <label for="m">m: </label>
-            <input type="number" id="m" name="m" min="1" max="10" value="1" />
-
+            <input type="number" id="m" name="m" min="1" max="10" value="1" size="5" />
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <button onclick="generateDistribution();">Generate Distibution</button>
+
+            <!-- prevent typing -->
+            <script>
+                document.getElementById("n").addEventListener("keydown", function (e) {
+                    e.preventDefault();
+                });
+                document.getElementById("m").addEventListener("keydown", function (e) {
+                    e.preventDefault();
+                });
+            </script>
 
             <br><br>
             <div style="width: 100%;">
