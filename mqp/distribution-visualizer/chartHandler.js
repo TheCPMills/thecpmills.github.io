@@ -57,7 +57,7 @@ async function generateDistribution() {
     const jsonResponse = await fetch("https://thecpmills.com/mqp/res/files/" + fileName);
     var json = await jsonResponse.text();
     var data = JSON.parse(json);
-    var stringOccurrences = data.stringOccurences;
+    var stringOccurrences = data.stringOccurrences;
 
     for (var key in stringOccurrences) {
         strings.push("\"" + stringOccurrences[key][0] + "\"");
