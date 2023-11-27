@@ -1,4 +1,4 @@
-var xBox, yBox, tableMatrix, lcsSet, lcsTable;
+var xBox, yBox, tableMatrix, lcsSet, lcsTable, lcsConfigurations;
 var table;
 const svgns = "http://www.w3.org/2000/svg";
 
@@ -7,11 +7,13 @@ function setup() {
     yBox = document.getElementById("y-box");
     tableMatrix = document.getElementById("table");
     lcsSet = document.getElementById("lcs-buttons");
+    lcsConfigurations = document.getElementById("lcs-configurations");
 
     table = document.createElementNS(svgns, "svg");
 
     xBox.value = "";
     yBox.value = "";
+    lcsConfigurations.style.display = "none";
     fillTable();
 }
 
@@ -31,6 +33,14 @@ function fillTable() {
 
     tableMatrix.innerHTML = "";
     tableMatrix.appendChild(generateSVGTable(x, y, 50, 50));
+
+    // if there is an lcs, show the configurations
+    if (lcsSet.innerHTML != "") {
+        lcsConfigurations.style.display = "block";
+        lcsConfigurations.innerHTML = "";
+    } else {
+        lcsConfigurations.style.display = "none";
+    }
 }
 
 function generateSVGTable(x, y, cellWidth, cellHeight) {
@@ -40,8 +50,8 @@ function generateSVGTable(x, y, cellWidth, cellHeight) {
     var rows = x.length + 2;
     var columns = y.length + 2;
 
-    lcsTable = genLcsTable(x, y);
-    var subsequences = findAllLCS(x, y, lcsTable);
+    lcsTable = LCSTable(x, y);
+    var subsequences = findAllLCS(x, y);
 
     // create buttons for each lcs
     lcsSet.innerHTML = "";
@@ -51,7 +61,7 @@ function generateSVGTable(x, y, cellWidth, cellHeight) {
         if (subsequence.length > 0) {
             var button = document.createElement("button");
             button.innerHTML = subsequences[i] + "\t";
-            button.setAttribute("onclick", "animateBacktracking(\"" + subsequences[i] + "\")");
+            button.setAttribute("onclick", "displayLCSInformation(\"" + x + "\", \"" + y + "\", \"" + subsequences[i] + "\")");
             lcsSet.appendChild(button);
         }
     }
@@ -191,11 +201,13 @@ function animateBacktracking(lcs) {
     clearBlueObjects();
     var backChild = table.childNodes[1];
 
-    // disable the buttons
+    // disable inputs
     var buttons = document.querySelectorAll("button");
     for (var i = 0; i < buttons.length; i++) {
         buttons[i].disabled = true;
     }
+    xBox.disabled = true;
+    yBox.disabled = true;
     
     // animate the line
     var i = 0;
@@ -262,12 +274,80 @@ function animateBacktracking(lcs) {
         }
     }, 500);
 
-    // enable the buttons
+    // enable inputs
     setTimeout(function() {
         for (var i = 0; i < buttons.length; i++) {
             buttons[i].disabled = false;
         }
+        xBox.disabled = false;
+        yBox.disabled = false;
     }, 500 * (backtracking.length - 1) + 1000);
+}
+
+function displayLCSInformation(x, y, lcs) {
+    // clear the configurations
+    lcsConfigurations.innerHTML = "<h3>Configurations of \"" + lcs + "\"</h3>";
+
+    // make a table
+    var table = document.createElement("table");
+    table.setAttribute("border", "0");
+    table.setAttribute("cellspacing", "0");
+    table.setAttribute("cellpadding", "0");
+    table.setAttribute("width", "50%");
+    table.setAttribute("height", "100%");
+
+    // add table to the configurations and center it
+    lcsConfigurations.appendChild(table);
+    lcsConfigurations.setAttribute("align", "center");
+
+    // add header row
+    var headerRow = document.createElement("tr");
+    table.appendChild(headerRow);
+
+    // add header cells
+    var headerCell = document.createElement("th");
+    headerCell.innerHTML = "<b>Configurations in \"" + x + "\"</b>";
+    headerRow.appendChild(headerCell);
+
+    headerCell = document.createElement("th");
+    headerCell.innerHTML = "<b>Configurations in \"" + y + "\"</b>";
+    headerRow.appendChild(headerCell);
+
+    // add the configurations
+    var configurationsX = configurations(x, lcs);
+    var configurationsY = configurations(y, lcs);
+
+    // make another row
+    var row = document.createElement("tr");
+    table.appendChild(row);
+
+    var xCell = document.createElement("td");
+    xCell.setAttribute("valign", "top");
+    xCell.setAttribute("align", "center");
+
+    var yCell = document.createElement("td");
+    yCell.setAttribute("valign", "top");
+    yCell.setAttribute("align", "center");
+
+    for (let configurationX of configurationsX) {
+        if (xCell.innerHTML != "") {
+            xCell.innerHTML += "<br>";
+        }
+        xCell.innerHTML += x.split('').map((char, index) => configurationX.includes(index) ? char : "_").join('');
+    }
+
+    for (let configurationY of configurationsY) {
+        if (yCell.innerHTML != "") {
+            yCell.innerHTML += "<br>";
+        } 
+        yCell.innerHTML += y.split('').map((char, index) => configurationY.includes(index) ? char : "_").join('');
+    }
+
+    row.appendChild(xCell);
+    row.appendChild(yCell);
+
+    // animate the backtracking
+    animateBacktracking(lcs);
 }
 
 function clearBlueObjects() {
@@ -279,82 +359,83 @@ function clearBlueObjects() {
 }
 
 // lcs dynamic programming algorithm    
-function genLcsTable(x, y) {
-    var rows = x.length + 1;
-    var columns = y.length + 1;
+function LCSTable(x, y) {
+    let n = x.length;
+    let m = y.length;
 
-    // create the table
-    var table = new Array(rows);
-    for (var i = 0; i < rows; i++) {
-        table[i] = new Array(columns);
+    // Initialize table
+    let T = new Array(n + 1);
+    for (let i = 0; i < n + 1; i++) {
+        T[i] = new Array(m + 1);
+    }
+    for (let i = 0; i < n + 1; i++) {
+        T[i][0] = 0;
+    }
+    for (let i = 0; i < m + 1; i++) {
+        T[0][i] = 0;
     }
 
-    // fill the table
-    for (var i = 0; i < rows; i++) {
-        table[i][0] = 0;
-    }
-    for (var i = 0; i < columns; i++) {
-        table[0][i] = 0;
-    }
-    for (var i = 1; i < rows; i++) {
-        for (var j = 1; j < columns; j++) {
+    for (let i = 1; i < n + 1; i++) {
+        for (let j = 1; j < m + 1; j++) {
             if (x[i - 1] == y[j - 1]) {
-                table[i][j] = table[i - 1][j - 1] + 1;
+                T[i][j] = T[i - 1][j - 1] + 1;
             } else {
-                table[i][j] = Math.max(table[i - 1][j], table[i][j - 1]);
+                T[i][j] = Math.max(T[i - 1][j], T[i][j - 1]);
             }
         }
     }
-
-    // return the table
-    return table;
+    return T;
 }
 
-// find all lcs
-function findAllLCS(x, y, lcsTable) {
-    // find all lcs
-    var lcs = [];
-    findAllLCSHelper(lcsTable, x, y, x.length, y.length, lcs, "");
+// find all lcs of two strings
+function findAllLCS(x, y) {
+    let Q = [];
+    Q.push([x.length, y.length, ""]);
 
-    // remove duplicates
-    var uniqueLCS = [];
-    for (var i = 0; i < lcs.length; i++) {
-        if (!uniqueLCS.includes(lcs[i])) {
-            uniqueLCS.push(lcs[i]);
+    let S = new Set();
+    while (Q.length > 0) {
+        let [i, j, s] = Q.shift();
+
+        if (i == 0 || j == 0) {
+            S.add(s);
+        } else if (x[i - 1] == y[j - 1]) {
+            Q.push([i - 1, j - 1, x[i - 1] + s]);
+        } else {
+            if (lcsTable[i - 1][j] >= lcsTable[i][j - 1]) {
+                Q.push([i - 1, j, s]);
+            }
+            if (lcsTable[i][j - 1] >= lcsTable[i - 1][j]) {
+                Q.push([i, j - 1, s]);
+            }
         }
     }
-
-    // sort the lcs
-    uniqueLCS.sort(function(a, b) {
-        // sort by lexographical order
+    
+    S = Array.from(S).sort(function(a,b) {
         if (a < b) {
             return -1;
-        } else if (a > b) {
+        } else {
             return 1;
         }
     });
-
-    // return the lcs
-    return uniqueLCS;
+    return S;
 }
 
-// helper function for findAllLCS
-function findAllLCSHelper(table, x, y, i, j, lcs, currentLCS) {
-    if (i == 0 || j == 0) {
-        lcs.push(currentLCS);
-        return;
-    }
+// find all configurations of a given subsequence
+function configurations(x, y) {
+    let C = x.split("").flatMap((x, i) => (x === y[0]) ? [[i]] : []);
 
-    if (x[i - 1] == y[j - 1]) {
-        findAllLCSHelper(table, x, y, i - 1, j - 1, lcs, x[i - 1] + currentLCS);
-    } else {
-        if (table[i - 1][j] >= table[i][j - 1]) {
-            findAllLCSHelper(table, x, y, i - 1, j, lcs, currentLCS);
-        }
-        if (table[i][j - 1] >= table[i - 1][j]) {
-            findAllLCSHelper(table, x, y, i, j - 1, lcs, currentLCS);
-        }
-    }
+    y.split("").slice(1).forEach(z => {
+        let Ci = [];
+        C.forEach(c => {
+            for (let j = c[c.length - 1] + 1; j < x.length; j++) {
+                if (x[j] === z) {
+                    Ci.push(c.concat(j));
+                }
+            }
+        })
+        C = Ci;
+    })
+    return C;
 }
 
 function getSubsequenceIndices(str, lcs) {

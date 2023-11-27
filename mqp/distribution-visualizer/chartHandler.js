@@ -64,6 +64,39 @@ async function generateDistribution() {
         occurrences.push(stringOccurrences[key][1]);
     }
 
+    const scaleOptions = {
+        x: {
+            title: {
+                display: true,
+                text: 'Longest Common Subsequence'
+                    }
+        },
+        y: {
+            beginAtZero: true,
+            title: {
+                display: true,
+                text: 'Number of Occurrences'
+                    }
+        }
+    };
+
+    const zoomOptions = {
+        limits: {
+            x: { min: 0, max: 200 },
+            y: { min: 0, max: 200 }
+        },
+        pan: {
+            enabled: true,
+            mode: 'xy',
+        },
+        zoom: {
+            wheel: {
+                enabled: true,
+            },
+            mode: 'xy',
+        }
+    };
+
     chart = new Chart(chartArea, {
         type: 'bar',
         data: {
@@ -76,21 +109,7 @@ async function generateDistribution() {
             }]
         },
         options: {
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Longest Common Subsequence'
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    title: {
-                        display: true,
-                        text: 'Number of Occurrences'
-                    }
-                }
-            },
+            scales: scaleOptions,
             plugins: {
                 legend: {
                     display: false
@@ -98,7 +117,8 @@ async function generateDistribution() {
                 title: {
                     display: true,
                     text: 'Distribution of Longest Common Subsequences of Strings of Length ' + n + ' and ' + m
-                }
+                },
+                zoom: zoomOptions
             }
         }
     });
@@ -132,3 +152,9 @@ function getPercent(stops, percent) {
     }
     return -1;
 }
+
+document.addEventListener('keydown', function(event) {
+    if (event.key == 'r') {
+        chart.resetZoom();
+    }
+});
