@@ -211,7 +211,7 @@ function toggleCameraType() {
 
 function initializeMLC(shader) {
     // model initialization
-    objectModel = new Model("model_" + m + "x" + n + ".obj", shader);
+    objectModel = new Model("model_" + n + "x" + m + ".obj", shader);
 
     // Generate model matrix
     var offset = vec3(-Math.pow(2, n - 1), 0, -Math.pow(2, m - 1));
@@ -222,11 +222,11 @@ function initializeMLC(shader) {
 
     // camera initialization
     var orthoSize = n * m + 1;
-    var perspectiveStart = vec3(-Math.pow(2, n), Math.pow(2, Math.min(n, m)), -Math.pow(2, m));
+    var perspectiveStart = vec3(0.0, Math.min(n, m) + 1, -(0.5 * n + 2.0 + Math.pow(2, m - 1)));
 
     perspectiveMatrix = perspective(70.0, width / height, 0.1, 100.0);
     perspectiveEye = vec3(perspectiveStart[0], perspectiveStart[1], perspectiveStart[2]);
-    perspectiveOrientation = vec3(-1.0, 1.0, -1.0);
+    perspectiveOrientation = vec3(0.0, 4.0, -8.0);
     perspectiveUp = vec3(0.0, 1.0, 0.0);
     orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
     orthoEye = vec3(0, orthoSize, 0);
