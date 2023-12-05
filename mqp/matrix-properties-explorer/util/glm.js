@@ -1,34 +1,32 @@
-function _argumentsToArray( args )
-{
-    return [].concat.apply( [], Array.prototype.slice.apply(args) );
+function argumentsToArray(args) {
+    return [].concat.apply([], Array.prototype.slice.apply(args));
 }
 
-function flatten( v )
-{
-    if ( v.matrix === true ) {
-        v = transpose( v );
+function flatten(v) {
+    if (v.matrix == true) {
+        v = transpose(v);
     }
 
     var n = v.length;
     var elemsAreArrays = false;
 
-    if ( Array.isArray(v[0]) ) {
+    if (Array.isArray(v[0])) {
         elemsAreArrays = true;
         n *= v[0].length;
     }
 
-    var floats = new Float32Array( n );
+    var floats = new Float32Array(n);
 
-    if ( elemsAreArrays ) {
+    if (elemsAreArrays) {
         var idx = 0;
-        for ( var i = 0; i < v.length; ++i ) {
-            for ( var j = 0; j < v[i].length; ++j ) {
+        for (var i = 0; i < v.length; ++i) {
+            for (var j = 0; j < v[i].length; ++j) {
                 floats[idx++] = v[i][j];
             }
         }
     }
     else {
-        for ( var i = 0; i < v.length; ++i ) {
+        for (var i = 0; i < v.length; ++i) {
             floats[i] = v[i];
         }
     }
@@ -51,121 +49,130 @@ function radians(degrees) {
 
 // Vector Constructors
 function vec2() {
-    var result = _argumentsToArray(arguments);
+    var vector = argumentsToArray(arguments);
 
-    switch (result.length) {
-        case 0: result.push(0.0);
-        case 1: result.push(0.0);
+    switch (vector.length) {
+        case 0:
+            vector.push(0.0);
+        case 1:
+            vector.push(0.0);
     }
 
-    return result.splice(0, 2);
+    return vector.splice(0, 2);
 }
 
 function vec3() {
-    var result = _argumentsToArray(arguments);
+    var vector = argumentsToArray(arguments);
 
-    switch (result.length) {
-        case 0: result.push(0.0);
-        case 1: result.push(0.0);
-        case 2: result.push(0.0);
+    switch (vector.length) {
+        case 0:
+            vector.push(0.0);
+        case 1:
+            vector.push(0.0);
+        case 2:
+            vector.push(0.0);
     }
 
-    return result.splice(0, 3);
+    return vector.splice(0, 3);
 }
 
 function vec4() {
-    var result = _argumentsToArray(arguments);
+    var vector = argumentsToArray(arguments);
 
-    switch (result.length) {
-        case 0: result.push(0.0);
-        case 1: result.push(0.0);
-        case 2: result.push(0.0);
-        case 3: result.push(1.0);
+    switch (vector.length) {
+        case 0:
+            vector.push(0.0);
+        case 1:
+            vector.push(0.0);
+        case 2:
+            vector.push(0.0);
+        case 3:
+            vector.push(1.0);
     }
 
-    return result.splice(0, 4);
+    return vector.splice(0, 4);
 }
 
 // Matrix Constructors
 function mat2() {
-    var v = _argumentsToArray(arguments);
+    var vector = argumentsToArray(arguments);
 
-    var m = [];
-    switch (v.length) {
+    var matrix = [];
+    switch (vector.length) {
         case 0:
-            v[0] = 1;
+            vector[0] = 1.0;
         case 1:
-            m = [
-                vec2(v[0], 0.0),
-                vec2(0.0, v[0])
+            matrix = [
+                vec2(vector[0], 0.0),
+                vec2(0.0, vector[0])
             ];
             break;
-
         default:
-            m.push(vec2(v)); v.splice(0, 2);
-            m.push(vec2(v));
+            matrix.push(vec2(vector));
+            vector.splice(0, 2);
+            matrix.push(vec2(vector));
             break;
     }
 
-    m.matrix = true;
-
-    return m;
+    matrix.matrix = true;
+    return matrix;
 }
 
 function mat3() {
-    var v = _argumentsToArray(arguments);
+    var vector = argumentsToArray(arguments);
 
-    var m = [];
-    switch (v.length) {
+    var matrix = [];
+    switch (vector.length) {
         case 0:
-            v[0] = 1;
+            vector[0] = 1.0;
         case 1:
-            m = [
-                vec3(v[0], 0.0, 0.0),
-                vec3(0.0, v[0], 0.0),
-                vec3(0.0, 0.0, v[0])
+            matrix = [
+                vec3(vector[0], 0.0, 0.0),
+                vec3(0.0, vector[0], 0.0),
+                vec3(0.0, 0.0, vector[0])
             ];
             break;
-
         default:
-            m.push(vec3(v)); v.splice(0, 3);
-            m.push(vec3(v)); v.splice(0, 3);
-            m.push(vec3(v));
+            matrix.push(vec3(vector));
+            vector.splice(0, 3);
+            matrix.push(vec3(vector));
+            vector.splice(0, 3);
+            matrix.push(vec3(vector));
             break;
     }
 
-    m.matrix = true;
-
-    return m;
+    matrix.matrix = true;
+    return matrix;
 }
 
 function mat4() {
-    var v = _argumentsToArray(arguments);
+    var vector = argumentsToArray(arguments);
 
-    var m = [];
-    switch (v.length) {
+    var matrix = [];
+    switch (vector.length) {
         case 0:
-            v[0] = 1;
+            vector[0] = 1.0;
         case 1:
-            m = [
-                vec4(v[0], 0.0, 0.0, 0.0),
-                vec4(0.0, v[0], 0.0, 0.0),
-                vec4(0.0, 0.0, v[0], 0.0),
-                vec4(0.0, 0.0, 0.0, v[0])
+            matrix = [
+                vec4(vector[0], 0.0, 0.0, 0.0),
+                vec4(0.0, vector[0], 0.0, 0.0),
+                vec4(0.0, 0.0, vector[0], 0.0),
+                vec4(0.0, 0.0, 0.0, vector[0])
             ];
             break;
-
         default:
-            m.push(vec4(v)); v.splice(0, 4);
-            m.push(vec4(v)); v.splice(0, 4);
-            m.push(vec4(v)); v.splice(0, 4);
-            m.push(vec4(v));
+            matrix.push(vec4(vector));
+            vector.splice(0, 4);
+            matrix.push(vec4(vector));
+            vector.splice(0, 4);
+            matrix.push(vec4(vector));
+            vector.splice(0, 4);
+            matrix.push(vec4(vector));
             break;
     }
 
-    m.matrix = true;
-
-    return m;
+    matrix.matrix = true;
+    return matrix;
 }
 
 // Generic Mathematical Operations for Vectors and Matrices
@@ -182,19 +189,17 @@ function add(u, v) {
                 throw "add(): trying to add matrices of different dimensions";
             }
             result.push([]);
+
             for (var j = 0; j < u[i].length; ++j) {
                 result[i].push(u[i][j] + v[i][j]);
             }
         }
 
         result.matrix = true;
-
         return result;
-    }
-    else if (u.matrix && !v.matrix || !u.matrix && v.matrix) {
+    } else if ((u.matrix && !v.matrix) || (!u.matrix && v.matrix)) {
         throw "add(): trying to add matrix and non-matrix variables";
-    }
-    else {
+    } else {
         if (u.length != v.length) {
             throw "add(): vectors are not the same dimension";
         }
@@ -212,29 +217,25 @@ function sub(u, v) {
 
     if (u.matrix && v.matrix) {
         if (u.length != v.length) {
-            throw "sub(): trying to sub matrices" +
-            " of different dimensions";
+            throw "sub(): trying to subtract matrices of different dimensions";
         }
 
         for (var i = 0; i < u.length; ++i) {
             if (u[i].length != v[i].length) {
-                throw "sub(): trying to subtact matrices" +
-                " of different dimensions";
+                throw "sub(): trying to subtact matrices of different dimensions";
             }
             result.push([]);
+
             for (var j = 0; j < u[i].length; ++j) {
                 result[i].push(u[i][j] - v[i][j]);
             }
         }
 
         result.matrix = true;
-
         return result;
-    }
-    else if (u.matrix && !v.matrix || !u.matrix && v.matrix) {
-        throw "subtact(): trying to subtact  matrix and non-matrix variables";
-    }
-    else {
+    } else if ((u.matrix && !v.matrix) || (!u.matrix && v.matrix)) {
+        throw "sub(): trying to subtact matrix and non-matrix variables";
+    } else {
         if (u.length != v.length) {
             throw "sub(): vectors are not the same length";
         }
@@ -277,7 +278,7 @@ function mult(u, v) {
 
         return result;
     }
-
+    
     if (u.matrix && (u.length == v.length)) {
         for (var i = 0; i < v.length; i++) {
             var sum = 0.0;
@@ -287,11 +288,7 @@ function mult(u, v) {
             result.push(sum);
         }
         return result;
-    }
-
-
-
-    else {
+    } else {
         if (u.length != v.length) {
             throw "mult(): vectors are not the same dimension";
         }
@@ -304,26 +301,24 @@ function mult(u, v) {
     }
 }
 
-function scale(s, u) {
-    if (!Array.isArray(u)) {
-        throw "scale: second parameter " + u + " is not a vector";
+function scale(u, s) {
+    if (u.matrix) {
+        for (var i = 0; i < u.length; ++i) {
+            for (var j = 0; j < u[i].length; ++j) {
+                u[i][j] *= s;
+            }
+        }
+    } else {
+        for (var i = 0; i < u.length; ++i) {
+            u[i] *= s;
+        }
     }
 
-    var result = [];
-    for (var i = 0; i < u.length; ++i) {
-        result.push(s * u[i]);
-    }
-
-    return result;
+    return u;
 }
 
 function negate(u) {
-    var result = [];
-    for (var i = 0; i < u.length; ++i) {
-        result.push(-u[i]);
-    }
-
-    return result;
+    return scale(u, -1.0);
 }
 
 function equal(u, v) {
@@ -351,20 +346,21 @@ function equal(u, v) {
 
 // Matrix-Specific Operations
 function transpose(m) {
+    var result = [];
+
     if (!m.matrix) {
         return "transpose(): trying to transpose a non-matrix";
     }
 
-    var result = [];
     for (var i = 0; i < m.length; ++i) {
         result.push([]);
+
         for (var j = 0; j < m[i].length; ++j) {
             result[i].push(m[j][i]);
         }
     }
 
     result.matrix = true;
-
     return result;
 }
 
@@ -377,64 +373,35 @@ function inverse(m) {
 }
 
 // Vector-Specific Operations
-function length(u) {
-    return Math.sqrt(dot(u, u));
+function length(v) {
+    return Math.sqrt(dot(v, v));
 }
 
-function angle(v1, v2) {
-    var dotProduct = dot(v1, v2);
-    var lengthProduct = length(v1) * length(v2);
-    return Math.acos(dotProduct / lengthProduct);
-
+function angle(u, v) {
+    return Math.acos(dot(u, v) / (length(u) * length(v)));
 }
 
-function normalize(u, excludeLastComponent) {
-    if (excludeLastComponent) {
-        var last = u.pop();
-    }
-
-    var len = length(u);
-
-    if (!isFinite(len)) {
-        return u;
-    }
-
-    for (var i = 0; i < u.length; ++i) {
-        u[i] /= len;
-    }
-
-    if (excludeLastComponent) {
-        u.push(last);
-    }
-
-    return u;
+function normalize(v) {
+    return scale(v, 1.0 / length(v));
 }
 
 function dot(u, v) {
+    var sum = 0.0;
+
     if (!Array.isArray(u) || !Array.isArray(v) || u.length != v.length) {
         throw "dot(): vectors are not the same dimension";
     }
 
-    if (u.length == 2) {
-        return u[0] * v[0] + u[1] * v[1];
+    for (var i = 0; i < u.length; ++i) {
+        sum += u[i] * v[i];
     }
 
-    if (u.length == 3) {
-        return u[0] * v[0] + u[1] * v[1] + u[2] * v[2];
-    }
-
-    if (u.length == 4) {
-        return u[0] * v[0] + u[1] * v[1] + u[2] * v[2] + u[3] * v[3];
-    }
+    return sum;
 }
 
 function cross(u, v) {
-    if (!Array.isArray(u) || u.length < 3) {
-        throw "cross(): first argument is not a vector of at least 3";
-    }
-
-    if (!Array.isArray(v) || v.length < 3) {
-        throw "cross(): second argument is not a vector of at least 3";
+    if (u.length != 3 || v.length != 3) {
+        throw "cross(): vectors are not three-dimensional";
     }
 
     var result = [
@@ -464,7 +431,7 @@ function mix(u, v, s) {
 }
 
 function rotate(point, axis, angle) {
-    var normalizedAxis = normalize(axis); // normalize the axis
+    var normalizedAxis = normalize(axis);
 
     var x = point[0] * Math.pow(Math.sin(angle / 2), 2) * (Math.pow(normalizedAxis[0], 2) - Math.pow(normalizedAxis[1], 2) - Math.pow(normalizedAxis[2], 2))
         + point[0] * Math.pow(Math.cos(angle / 2), 2)
@@ -492,64 +459,56 @@ function rotate(point, axis, angle) {
     return vec3(x, y, z);
 }
 
-function rotateOffset(point, axis, origin, angle) {
+function rotate(point, axis, origin, angle) {
     return add(rotate(sub(point, origin), axis, angle), origin);
 }
 
 // Affine Transformations
 function translationMatrix(x, y, z) {
-    if (Array.isArray(x) && x.length == 3) {
-        z = x[2];
-        y = x[1];
-        x = x[0];
-    }
+    var matrix = mat4();
 
-    var result = mat4();
-    result[0][3] = x;
-    result[1][3] = y;
-    result[2][3] = z;
+    matrix[0][3] = x;
+    matrix[1][3] = y;
+    matrix[2][3] = z;
 
-    return result;
+    return matrix;
 }
 
-function rotationMatrix(angle, axis) {
-    if (!Array.isArray(axis)) {
-        axis = [arguments[1], arguments[2], arguments[3]];
-    }
+function rotationMatrix(axis, angle) {
+    var matrix = mat4();
 
-    var v = normalize(axis);
-
-    var x = v[0];
-    var y = v[1];
-    var z = v[2];
-
-    var c = Math.cos(radians(angle));
+    var c = Math.cos(angle);
     var omc = 1.0 - c;
-    var s = Math.sin(radians(angle));
+    var s = Math.sin(angle);
 
-    var result = mat4(
-        vec4(x * x * omc + c, x * y * omc - z * s, x * z * omc + y * s, 0.0),
-        vec4(x * y * omc + z * s, y * y * omc + c, y * z * omc - x * s, 0.0),
-        vec4(x * z * omc - y * s, y * z * omc + x * s, z * z * omc + c, 0.0),
-        vec4()
-    );
+    var normalizedAxis = normalize(axis);
+    var x = normalizedAxis[0];
+    var y = normalizedAxis[1];
+    var z = normalizedAxis[2];
 
-    return result;
+    matrix[0][0] = x * x * omc + c;
+    matrix[0][1] = x * y * omc - z * s;
+    matrix[0][2] = x * z * omc + y * s;
+
+    matrix[1][0] = x * y * omc + z * s;
+    matrix[1][1] = y * y * omc + c;
+    matrix[1][2] = y * z * omc - x * s;
+
+    matrix[2][0] = x * z * omc - y * s;
+    matrix[2][1] = y * z * omc + x * s;
+    matrix[2][2] = z * z * omc + c;
+
+    return matrix;
 }
 
 function scalingMatrix(x, y, z) {
-    if (Array.isArray(x) && x.length == 3) {
-        z = x[2];
-        y = x[1];
-        x = x[0];
-    }
+    var matrix = mat4();
 
-    var result = mat4();
-    result[0][0] = x;
-    result[1][1] = y;
-    result[2][2] = z;
+    matrix[0][0] = x;
+    matrix[1][1] = y;
+    matrix[2][2] = z;
 
-    return result;
+    return matrix;
 }
 
 function reflectionMatrix(plane) {
@@ -595,33 +554,33 @@ function shearMatrix(hxy, hxz, hyx, hyz, hzx, hzy) {
 }
 
 // View and Projection Matrices
-function lookAt(eye, at, up) {
+function lookAt(eye, spot, worldUp) {
     if (!Array.isArray(eye) || eye.length != 3) {
         throw "lookAt(): first parameter [eye] must be an a vec3";
     }
 
-    if (!Array.isArray(at) || at.length != 3) {
-        throw "lookAt(): first parameter [at] must be an a vec3";
+    if (!Array.isArray(spot) || spot.length != 3) {
+        throw "lookAt(): second parameter [spot] must be an a vec3";
     }
 
-    if (!Array.isArray(up) || up.length != 3) {
-        throw "lookAt(): first parameter [up] must be an a vec3";
+    if (!Array.isArray(worldUp) || worldUp.length != 3) {
+        throw "lookAt(): third parameter [wordUp] must be an a vec3";
     }
 
-    if (equal(eye, at)) {
+    if (equal(eye, spot)) {
         return mat4();
     }
 
-    var v = normalize(sub(at, eye));  // view direction vector
-    var n = normalize(cross(v, up));       // perpendicular vector
-    var u = normalize(cross(n, v));        // "new" up vector
+    var look = normalize(sub(spot, eye));
+    var right = normalize(cross(look, worldUp));
+    var up = normalize(cross(right, look));
 
-    v = negate(v);
+    look = negate(look);
 
     var result = mat4(
-        vec4(n, -dot(n, eye)),
-        vec4(u, -dot(u, eye)),
-        vec4(v, -dot(v, eye)),
+        vec4(right, -dot(right, eye)),
+        vec4(up, -dot(up, eye)),
+        vec4(look, -dot(look, eye)),
         vec4()
     );
 
@@ -629,40 +588,67 @@ function lookAt(eye, at, up) {
 }
 
 function ortho(left, right, bottom, top, near, far) {
-    if (left == right) { throw "ortho(): left and right are equal"; }
-    if (bottom == top) { throw "ortho(): bottom and top are equal"; }
-    if (near == far) { throw "ortho(): near and far are equal"; }
+    if (left == right) {
+        throw "ortho(): left and right are equal";
+    }
+    if (bottom == top) {
+        throw "ortho(): bottom and top are equal";
+    }
+    if (near == far) {
+        throw "ortho(): near and far are equal";
+    }
 
-    var w = right - left;
-    var h = top - bottom;
-    var d = far - near;
+    var width = right - left;
+    var height = top - bottom;
+    var depth = far - near;
 
     var result = mat4();
-    result[0][0] = 2.0 / w;
-    result[1][1] = 2.0 / h;
-    result[2][2] = -2.0 / d;
-    result[0][3] = -(left + right) / w;
-    result[1][3] = -(top + bottom) / h;
-    result[2][3] = -(near + far) / d;
+    result[0][0] = 2.0 / width;
+    result[1][1] = 2.0 / height;
+    result[2][2] = -2.0 / depth;
+    result[0][3] = -(left + right) / width;
+    result[1][3] = -(top + bottom) / height;
+    result[2][3] = -(far + near) / depth;
 
     return result;
 }
 
-function perspective(fovy, aspect, near, far) {
-    var f = 1.0 / Math.tan(radians(fovy) / 2);
-    var d = far - near;
+function perspective(fov, aspectRatio, near, far) {
+    var top = near * Math.tan(radians(fov) / 2.0);
+    var right = top * aspectRatio;
 
-    var result = mat4();
-    result[0][0] = f / aspect;
-    result[1][1] = f;
-    result[2][2] = -(near + far) / d;
-    result[2][3] = -2 * near * far / d;
-    result[3][2] = -1;
-    result[3][3] = 0.0;
-
-    return result;
+    return frustum(-right, right, -top, top, near, far);
 }
 
 function frustum(left, right, bottom, top, near, far) {
-    // TODO: Implement this
+    if (left == right) {
+        throw "frustum(): left and right are equal";
+    }
+    if (bottom == top) {
+        throw "frustum(): bottom and top are equal";
+    }
+    if (near == far) {
+        throw "frustum(): near and far are equal";
+    }
+    if (near <= 0.0) {
+        throw "frustum(): near is less than or equal to 0.0";
+    }
+    if (far <= 0.0) {
+        throw "frustum(): far is less than or equal to 0.0";
+    }
+
+    var width = right - left;
+    var height = top - bottom;
+    var depth = far - near;
+
+    var result = mat4();
+    result[0][0] = 2.0 * near / width;
+    result[1][1] = 2.0 * near / height;
+    result[0][2] = (left + right) / width;
+    result[1][2] = (top + bottom) / height;
+    result[2][2] = -(far + near) / depth;
+    result[3][2] = -1.0;
+    result[2][3] = -2.0 * far * near / depth;
+
+    return result;
 }
