@@ -42,7 +42,6 @@ def LcsHelper(text1, text2, m, n, dp):
     # merge two lists and return
     return top + left
 
-
 def lcsSet(text1, text2):
     # calculate length of text1 and text2
     m, n = len(text1), len(text2)
@@ -77,20 +76,30 @@ def generate(n, m):
 
     # find all LCSs of each pair of strings
     occurrences = {}
-    for nString in nStrings:
-        for mString in mStrings:
-            lcs = lcsSet(nString, mString)
-            for l in lcs:
-                if l in occurrences:
-                    occurrences[l] += 1
-                else:
-                    occurrences[l] = 1
+    if n == m:
+        for i in range(len(nStrings)):
+            for j in range(i, len(mStrings)):
+                lcs = lcsSet(nStrings[i], mStrings[j])
+                for l in lcs:
+                    if l in occurrences:
+                        occurrences[l] += 1
+                    else:
+                        occurrences[l] = 1
+    else:
+        for nString in nStrings:
+            for mString in mStrings:
+                lcs = lcsSet(nString, mString)
+                for l in lcs:
+                    if l in occurrences:
+                        occurrences[l] += 1
+                    else:
+                        occurrences[l] = 1
     
     # sort occurrences by key length
     occurrences = {k: v for k, v in sorted(occurrences.items(), key=lambda item: len(item[0]))}
 
     # create JSON file with each key-value pair as an array
-    with open('Website Code/res/files/' + str(n) + 'x' + str(m) + '.json', 'w') as f:
+    with open(str(n) + 'x' + str(m) + '.json', 'w') as f:
         f.write("{\n\t\"stringOccurrences\": [\n")
         for key in occurrences:
             f.write("\t\t[\"" + key + "\", " + str(occurrences[key]) + "],\n")
