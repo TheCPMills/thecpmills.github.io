@@ -145,9 +145,17 @@ function setup() {
         panel.parentNode.removeChild(panel); // remove div from main div
         document.body.appendChild(panel); // add div to body
         panel.style.width = canvas.width + "px";
+
+        // remove computerControls div
+        var computerControls = document.getElementById("computerControls");
+        computerControls.parentNode.removeChild(computerControls);
     } else { // if on a computer
         canvas.width = window.innerWidth * 0.51;
         canvas.height = canvas.width * 0.6667;
+
+        // remove mobileControls div
+        var mobileControls = document.getElementById("mobileControls");
+        mobileControls.parentNode.removeChild(mobileControls);
     }
 
     document.getElementById("matrixDimensions").style.height = canvas.height * 0.2362 + "px";
@@ -498,8 +506,6 @@ document.onmouseup = function (event) {
 
 document.onmousemove = function (event) {
     if (event.target == canvas) {
-        event.preventDefault();
-
         if (!isAnimating && mouseDown) {
             var mouseX = event.clientX;
             var mouseY = event.clientY;
@@ -534,7 +540,10 @@ document.addEventListener("touchend", function (event) {
 
 document.addEventListener("touchmove", function (event) {
     if (event.target == canvas) {
+
+        // disable scrolling
         event.preventDefault();
+        event.stopPropagation();
 
         if (!isAnimating && mouseDown) {
             var mouseX = event.touches[0].clientX;

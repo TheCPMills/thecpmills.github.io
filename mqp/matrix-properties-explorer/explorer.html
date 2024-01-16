@@ -296,20 +296,20 @@
             <div style="clear: both;"></div>
             
             <div id="mobileControls">
-                <button id="up" touchstart="moveCameraUp()" touchend="stopCamera()" style="width: 50px; height: 50px;">Up</button>
-                <button id="forward" touchstart="moveCameraForward()" touchend="stopCamera()" style="width: 50px; height: 50px;">Forward</button>
-                <button id="down" touchstart="moveCameraDown()" touchend="stopCamera()" style="width: 50px; height: 50px;">Down</button>
+                <button id="up" onmousedown="moveCameraUp()" onmouseup="stopCamera()" style="width: 50px; height: 50px;">Up</button>
+                <button id="forward" onmousedown="moveCameraForward()" onmouseup="stopCamera()" style="width: 50px; height: 50px;">Forward</button>
+                <button id="down" onmousedown="moveCameraDown()" onmouseup="stopCamera()" style="width: 50px; height: 50px;">Down</button>
                 <br />
-                <button id="left" touchstart="moveCameraLeft()" touchend="stopCamera()" style="width: 50px; height: 50px;">Left</button>
+                <button id="left" onmousedown="moveCameraLeft()" onmouseup="stopCamera()" style="width: 50px; height: 50px;">Left</button>
                 <button id="reset" onclick="resetCamera()" style="width: 50px; height: 50px;">Reset</button>
-                <button id="right" touchstart="moveCameraRight()" touchend="stopCamera()" style="width: 50px; height: 50px;">Right</button>
+                <button id="right" onmousedown="moveCameraRight()" onmouseup="stopCamera()" style="width: 50px; height: 50px;">Right</button>
                 <br />
-                <button id="backward" touchstart="moveCameraBackward()" touchend="stopCamera()" style="width: 50px; height: 50px;">Backward</button>
+                <button id="backward" onmousedown="moveCameraBackward()" onmouseup="stopCamera()" style="width: 50px; height: 50px;">Backward</button>
                 <br /><br />
                 <button id="perspective" onclick="togglePerspective()" style="width: 100px; height: 50px;">Toggle Perspective</button>
             </div>
             
-            <div id="controlsInfo">
+            <div id="computerControls">
                 <h3>How To Use:</h3>
                 WASD - Move camera <br />
                 Space/Shift - Move camera up/down <br />
