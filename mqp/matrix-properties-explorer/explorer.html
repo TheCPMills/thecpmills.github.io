@@ -294,10 +294,25 @@
                 </div>
             </div>
             <div style="clear: both;"></div>
-            <div id="Controls">
+            
+            <div id="mobileControls">
+                <button id="up" touchstart="moveCameraUp()" touchend="stopCamera()" style="width: 50px; height: 50px;">Up</button>
+                <button id="forward" touchstart="moveCameraForward()" touchend="stopCamera()" style="width: 50px; height: 50px;">Forward</button>
+                <button id="down" touchstart="moveCameraDown()" touchend="stopCamera()" style="width: 50px; height: 50px;">Down</button>
+                <br />
+                <button id="left" touchstart="moveCameraLeft()" touchend="stopCamera()" style="width: 50px; height: 50px;">Left</button>
+                <button id="reset" onclick="resetCamera()" style="width: 50px; height: 50px;">Reset</button>
+                <button id="right" touchstart="moveCameraRight()" touchend="stopCamera()" style="width: 50px; height: 50px;">Right</button>
+                <br />
+                <button id="backward" touchstart="moveCameraBackward()" touchend="stopCamera()" style="width: 50px; height: 50px;">Backward</button>
+                <br /><br />
+                <button id="perspective" onclick="togglePerspective()" style="width: 100px; height: 50px;">Toggle Perspective</button>
+            </div>
+            
+            <div id="controlsInfo">
                 <h3>How To Use:</h3>
                 WASD - Move camera <br />
-                Q/E - Move camera up/down <br />
+                Space/Shift - Move camera up/down <br />
                 Mouse - Rotate camera <br />
                 Z - Toggle Perspective/Orthographic View <br />
                 R - Reset Camera <br />

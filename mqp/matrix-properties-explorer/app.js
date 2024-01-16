@@ -394,10 +394,10 @@ document.onkeydown = function (event) {
         if (key == 'D') {
             dPressed = true;
         }
-        if (key == 'Q') {
+        if (key == ' ') {
             spacePressed = true;
         }
-        if (key == 'E') {
+        if (event.shiftKey) {
             shiftPressed = true;
         }
 
@@ -436,14 +436,14 @@ document.onkeydown = function (event) {
                 }
                 if (spacePressed) {
                     orthoSize += 0.1 * Math.min(n, m);
-                    orthoEye = vec3(0, orthoSize, 0);
+                    orthoEye = vec3(camera.position[0], orthoSize, camera.position[2]);
                     orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
                     camera.projectionMatrix = orthoMatrix;
                     camera.setPosition(orthoEye);
                 }
                 if (shiftPressed) {
                     orthoSize -= 0.1 * Math.min(n, m);
-                    orthoEye = vec3(0, orthoSize, 0);
+                    orthoEye = vec3(camera.position[0], orthoSize, camera.position[2]);
                     orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
                     camera.projectionMatrix = orthoMatrix;
                     camera.setPosition(orthoEye);
@@ -468,10 +468,10 @@ document.onkeyup = function (event) {
     if (key == 'D') {
         dPressed = false;
     }
-    if (key == 'Q') {
+    if (key == ' ') {
         spacePressed = false;
     }
-    if (key == 'E') {
+    if (!event.shiftKey) {
         shiftPressed = false;
     }
 }
@@ -498,6 +498,8 @@ document.onmouseup = function (event) {
 
 document.onmousemove = function (event) {
     if (event.target == canvas) {
+        event.preventDefault();
+
         if (!isAnimating && mouseDown) {
             var mouseX = event.clientX;
             var mouseY = event.clientY;
@@ -531,17 +533,125 @@ document.addEventListener("touchend", function (event) {
 });
 
 document.addEventListener("touchmove", function (event) {
-    if (!isAnimating && mouseDown) {
-        var mouseX = event.touches[0].clientX;
-        var mouseY = event.touches[0].clientY;
+    if (event.target == canvas) {
+        event.preventDefault();
 
-        var rotX = camera.sensitivity * (mouseX - mouseLastX) / 100;
-        var rotY = camera.sensitivity * (mouseY - mouseLastY) / 100;
+        if (!isAnimating && mouseDown) {
+            var mouseX = event.touches[0].clientX;
+            var mouseY = event.touches[0].clientY;
 
-        camera.setOrientation(rotate(camera.orientation, vec3(0.0, 1.0, 0.0), radians(-rotX)));
-        camera.setOrientation(rotate(camera.orientation, normalize(cross(camera.orientation, camera.worldUp)), radians(rotY)));
+            var rotX = camera.sensitivity * (mouseX - mouseLastX) / 100;
+            var rotY = camera.sensitivity * (mouseY - mouseLastY) / 100;
 
-        mouseLastX = mouseX;
-        mouseLastY = mouseY;
+            camera.setOrientation(rotate(camera.orientation, vec3(0.0, 1.0, 0.0), radians(-rotX)));
+            camera.setOrientation(rotate(camera.orientation, normalize(cross(camera.orientation, camera.worldUp)), radians(rotY)));
+
+            mouseLastX = mouseX;
+            mouseLastY = mouseY;
+        }
     }
 });
+
+var counter;
+var count = 0;
+
+function moveCameraUp() {
+    counter = setInterval(function() {
+        if (!isAnimating) {
+            if (isPerspective) {
+                camera.setPosition(add(camera.position, scale(camera.speed, camera.worldUp)));
+            } else {
+                orthoSize += 0.1 * Math.min(n, m);
+                orthoEye = vec3(camera.position[0], orthoSize, camera.position[2]);
+                orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
+                camera.projectionMatrix = orthoMatrix;
+                camera.setPosition(orthoEye);
+            }
+        }
+    }, 25);
+}
+
+function moveCameraDown() {
+    counter = setInterval(function() {
+        if (!isAnimating) {
+            if (isPerspective) {
+                camera.setPosition(add(camera.position, scale(-camera.speed, camera.worldUp)));
+            } else {
+                orthoSize -= 0.1 * Math.min(n, m);
+                orthoEye = vec3(camera.position[0], orthoSize, camera.position[2]);
+                orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
+                camera.projectionMatrix = orthoMatrix;
+                camera.setPosition(orthoEye);
+            }
+        }
+    }, 25);
+}
+
+function moveCameraLeft() {
+    counter = setInterval(function() {
+        if (!isAnimating) {
+            if (isPerspective) {
+                camera.setPosition(add(camera.position, scale(camera.speed, normalize(cross(camera.orientation, camera.worldUp)))));
+            } else {
+                camera.setPosition(add(camera.position, scale(camera.speed, vec3(1.0, 0.0, 0.0))));
+            }
+        }
+    }, 25);
+}
+
+function moveCameraRight() {
+    counter = setInterval(function() {
+        if (!isAnimating) {
+            if (isPerspective) {
+                camera.setPosition(add(camera.position, scale(-camera.speed, normalize(cross(camera.orientation, camera.worldUp)))));
+            } else {
+                camera.setPosition(add(camera.position, scale(-camera.speed, vec3(1.0, 0.0, 0.0))));
+            }
+        }
+    }, 25);
+}
+
+function moveCameraForward() {
+    counter = setInterval(function() {
+        if (!isAnimating) {
+            if (isPerspective) {
+                camera.setPosition(add(camera.position, scale(-camera.speed, camera.orientation)));
+            } else {
+                camera.setPosition(add(camera.position, scale(camera.speed, vec3(0.0, 0.0, 1.0))));
+            }
+        }
+    }, 25);
+}
+
+function moveCameraBackward() {
+    counter = setInterval(function() {
+        if (!isAnimating) {
+            if (isPerspective) {
+                camera.setPosition(add(camera.position, scale(camera.speed, camera.orientation)));
+            } else {
+                camera.setPosition(add(camera.position, scale(-camera.speed, vec3(0.0, 0.0, 1.0))));
+            }
+        }
+    }, 25);
+}
+
+function stopCamera() {
+    if (!isAnimating) {
+        clearInterval(counter);
+    }
+}
+
+function togglePerspective() {
+    if (!isAnimating) {
+        isAnimating = true;
+    }
+}
+
+function resetCamera() {
+    if (!isAnimating) {
+        initializeMLC(shaderProgram);
+        isPerspective = true;
+        camera.isPerspective = true;
+        time = -1.0;
+    }
+}
