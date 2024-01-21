@@ -377,6 +377,10 @@ function length(v) {
     return Math.sqrt(dot(v, v));
 }
 
+function distance(u, v) {
+    return length(sub(u, v));
+}
+
 function angle(u, v) {
     return Math.acos(dot(u, v) / (length(u) * length(v)));
 }

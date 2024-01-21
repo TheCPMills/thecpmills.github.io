@@ -381,6 +381,10 @@ function length(u) {
     return Math.sqrt(dot(u, u));
 }
 
+function distance(u, v) {
+    return length(sub(u, v));
+}
+
 function angle(v1, v2) {
     var dotProduct = dot(v1, v2);
     var lengthProduct = length(v1) * length(v2);

@@ -140,15 +140,13 @@ Controller.prototype.registerForCanvas = function (canvas) {
                 vec2(newTouches[0][0] - oldTouches[0][0], newTouches[0][1] - oldTouches[0][1]),
                 vec2(newTouches[1][0] - oldTouches[1][0], newTouches[1][1] - oldTouches[1][1])
             ];
-            var motionDirs = [vec2(), vec2()];
-            normalize(motionDirs[0], motionVectors[0]);
-            normalize(motionDirs[1], motionVectors[1]);
+            var motionDirs = [normalize(motionVectors[0]), normalize(motionVectors[1])];
 
             var pinchAxis = vec2(oldTouches[1][0] - oldTouches[0][0], oldTouches[1][1] - oldTouches[0][1]);
-            normalize(pinchAxis, pinchAxis);
+            pinchAxis = normalize(pinchAxis);
 
             var panAxis = mix(motionVectors[0], motionVectors[1], 0.5);
-            normalize(panAxis, panAxis);
+            panAxis = normalize(panAxis);
 
             var pinchMotion = [
                 dot(pinchAxis, motionDirs[0]),
@@ -165,14 +163,13 @@ Controller.prototype.registerForCanvas = function (canvas) {
             if (self.pinch && Math.abs(pinchMotion[0]) > 0.5 && Math.abs(pinchMotion[1]) > 0.5
                 && Math.sign(pinchMotion[0]) != Math.sign(pinchMotion[1])) {
                 // Pinch distance change for zooming
-                var oldDist = pointDist(oldTouches[0], oldTouches[1]);
-                var newDist = pointDist(newTouches[0], newTouches[1]);
-                self.pinch(newDist - oldDist);
+                var oldDist = distance(oldTouches[0], oldTouches[1]);
+                var newDist = distance(newTouches[0], newTouches[1]);
+                self.pinch(5 * (oldDist - newDist));
             } else if (self.twoFingerDrag && Math.abs(panMotion[0]) > 0.5 && Math.abs(panMotion[1]) > 0.5
                 && Math.sign(panMotion[0]) == Math.sign(panMotion[1])) {
                 // Pan by the average motion of the two fingers
-                var panAmount = vec2.lerp(vec2.create(), motionVectors[0], motionVectors[1], 0.5);
-                panAmount[1] = -panAmount[1];
+                var panAmount = mix(motionVectors[0], motionVectors[1], 0.5);
                 self.twoFingerDrag(panAmount);
             }
         }
