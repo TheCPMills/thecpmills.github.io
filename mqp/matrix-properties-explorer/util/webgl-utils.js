@@ -459,7 +459,7 @@ function rotate(point, axis, angle) {
     return vec3(x, y, z);
 }
 
-function rotate(point, axis, origin, angle) {
+function rotateOrigin(point, axis, origin, angle) {
     return add(rotate(sub(point, origin), axis, angle), origin);
 }
 

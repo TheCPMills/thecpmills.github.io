@@ -1,7 +1,7 @@
 // =================
 // ==== GLOBALS ====
 // =================
-var canvas, gl, shaderProgram;
+var canvas, gl, shaderProgram, controller;
 var width, height, aspectRatio;
 var xBox, yBox, lcsButton;
 var kBox, kButton;
@@ -33,8 +33,6 @@ var isPerspective = true;
 var isAnimating = false;
 var alpha = 0.01 * Math.min(n, m);
 var time = -1.0;
-var mouseLastX, mouseLastY;
-var mouseDown = false;
 var camera;
 
 // =================
@@ -136,6 +134,8 @@ window.mobileAndTabletCheck = function () {
 };
 
 function setup() {
+    registerController();
+
     var onMobile = mobileAndTabletCheck();
     if (onMobile) { // if on a mobile device
         canvas.width = window.innerWidth * 0.875;
@@ -369,87 +369,58 @@ function changeK() {
     kSetLabel.innerHTML = "Set of Longest Common Subsequences: {" + setOfLCSs + "}";
 }
 
-var wPressed = false;
-var aPressed = false;
-var sPressed = false;
-var dPressed = false;
-var spacePressed = false;
-var shiftPressed = false;
-
-document.onkeydown = function (event) {
-    var key = String.fromCharCode(event.keyCode);
-
-    if (!isAnimating) {
-        if (key == 'Z') {
-            isAnimating = true;
-        }
-        if (key == 'R') {
-            initializeMLC(shaderProgram);
-            isPerspective = true;
-            camera.isPerspective = true;
-            time = -1.0;
+function registerController() {
+    controller = new Controller();
+    controller.keyPress = function (keys) {
+        if (keys.indexOf("KeyZ") != -1) {
+            togglePerspective();
         }
 
-        if (key == 'W') {
-            wPressed = true;
-        }
-        if (key == 'A') {
-            aPressed = true;
-        }
-        if (key == 'S') {
-            sPressed = true;
-        }
-        if (key == 'D') {
-            dPressed = true;
-        }
-        if (key == ' ') {
-            spacePressed = true;
-        }
-        if (event.shiftKey) {
-            shiftPressed = true;
+        if (keys.indexOf("KeyR") != -1) {
+            resetCamera();
         }
 
         if (!isAnimating) {
             if (isPerspective) {
-                if (wPressed) {
+                if (keys.indexOf("KeyW") != -1) {
                     camera.setPosition(add(camera.position, scale(-camera.speed, camera.orientation)));
                 }
-                if (aPressed) {
+                if (keys.indexOf("KeyA") != -1) {
                     camera.setPosition(add(camera.position, scale(camera.speed, normalize(cross(camera.orientation, camera.worldUp)))));
                 }
-                if (sPressed) {
+                if (keys.indexOf("KeyS") != -1) {
                     camera.setPosition(add(camera.position, scale(camera.speed, camera.orientation)));
                 }
-                if (dPressed) {
+                if (keys.indexOf("KeyD") != -1) {
                     camera.setPosition(add(camera.position, scale(-camera.speed, normalize(cross(camera.orientation, camera.worldUp)))));
                 }
-                if (spacePressed) {
+                if (keys.indexOf("Space") != -1) {
                     camera.setPosition(add(camera.position, scale(camera.speed, camera.worldUp)));
                 }
-                if (shiftPressed) {
+                if (keys.indexOf("ShiftLeft") != -1) {
                     camera.setPosition(add(camera.position, scale(-camera.speed, camera.worldUp)));
                 }
             } else {
-                if (wPressed) {
+                if (keys.indexOf("KeyW") != -1) {
                     camera.setPosition(add(camera.position, scale(camera.speed, vec3(0.0, 0.0, 1.0))));
                 }
-                if (aPressed) {
+                if (keys.indexOf("KeyA") != -1) {
                     camera.setPosition(add(camera.position, scale(camera.speed, vec3(1.0, 0.0, 0.0))));
                 }
-                if (sPressed) {
+                if (keys.indexOf("KeyS") != -1) {
                     camera.setPosition(add(camera.position, scale(-camera.speed, vec3(0.0, 0.0, 1.0))));
                 }
-                if (dPressed) {
+                if (keys.indexOf("KeyD") != -1) {
                     camera.setPosition(add(camera.position, scale(-camera.speed, vec3(1.0, 0.0, 0.0))));
                 }
-                if (spacePressed) {
+                if (keys.indexOf("Space") != -1) {
                     orthoSize += 0.1 * Math.min(n, m);
                     orthoEye = vec3(camera.position[0], orthoSize, camera.position[2]);
                     orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
                     camera.projectionMatrix = orthoMatrix;
                     camera.setPosition(orthoEye);
                 }
-                if (shiftPressed) {
+                if (keys.indexOf("ShiftLeft") != -1) {
                     orthoSize -= 0.1 * Math.min(n, m);
                     orthoEye = vec3(camera.position[0], orthoSize, camera.position[2]);
                     orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
@@ -458,195 +429,67 @@ document.onkeydown = function (event) {
                 }
             }
         }
-    }
-}
+    };
 
-document.onkeyup = function (event) {
-    var key = String.fromCharCode(event.keyCode);
-
-    if (key == 'W') {
-        wPressed = false;
-    }
-    if (key == 'A') {
-        aPressed = false;
-    }
-    if (key == 'S') {
-        sPressed = false;
-    }
-    if (key == 'D') {
-        dPressed = false;
-    }
-    if (key == ' ') {
-        spacePressed = false;
-    }
-    if (!event.shiftKey) {
-        shiftPressed = false;
-    }
-}
-
-document.onmousedown = function (event) {
-    if (!isAnimating && !mouseDown && isPerspective) {
-        if (event.button == 0) {
-            canvas.style.cursor = "none";
-            mouseLastX = event.clientX;
-            mouseLastY = event.clientY;
-            mouseDown = true;
+    controller.mousemove = function(prevMousePos, currMousePos, event) {
+        if (event.buttons == 1) {
+            rotateCamera(currMousePos[0] - prevMousePos[0], currMousePos[1] - prevMousePos[1]);
+        } else if (event.buttons == 2) {
+            panCamera(currMousePos[0] - prevMousePos[0], currMousePos[1] - prevMousePos[1]);
         }
+    };
+
+    controller.wheel = function(delta) {
+        zoomCamera(delta);
+    };
+
+    controller.pinch = controller.wheel;
+    controller.twoFingerDrag = function (drag) {
+        panCamera(drag[0], drag[1]);
+    };
+
+    controller.registerForCanvas(canvas);
+}
+
+function rotateCamera(deltaX, deltaY) {
+    if (!isAnimating && isPerspective) {
+        var rotX = camera.sensitivity * deltaX / 100;
+        var rotY = camera.sensitivity * deltaY / 100;
+
+        camera.setOrientation(rotate(camera.orientation, vec3(0.0, 1.0, 0.0), radians(-rotX)));
+        camera.setOrientation(rotate(camera.orientation, normalize(cross(camera.orientation, camera.worldUp)), radians(rotY)));
     }
 }
 
-document.onmouseup = function (event) {
-    if (!isAnimating && mouseDown && isPerspective) {
-        if (event.button == 0) {
-            canvas.style.cursor = "default";
-            mouseDown = false;
-        }
-    }
-}
-
-document.onmousemove = function (event) {
-    if (event.target == canvas) {
-        if (!isAnimating && mouseDown) {
-            var mouseX = event.clientX;
-            var mouseY = event.clientY;
-
-            var rotX = camera.sensitivity * (mouseX - mouseLastX) / 100;
-            var rotY = camera.sensitivity * (mouseY - mouseLastY) / 100;
-
-            camera.setOrientation(rotate(camera.orientation, vec3(0.0, 1.0, 0.0), radians(-rotX)));
-            camera.setOrientation(rotate(camera.orientation, normalize(cross(camera.orientation, camera.worldUp)), radians(rotY)));
-
-            mouseLastX = mouseX;
-            mouseLastY = mouseY;
-        }
-    }
-}
-
-document.addEventListener("touchstart", function (event) {
-    if (!isAnimating && !mouseDown && isPerspective) {
-        canvas.style.cursor = "none";
-        mouseLastX = event.touches[0].clientX;
-        mouseLastY = event.touches[0].clientY;
-        mouseDown = true;
-    }
-});
-
-document.addEventListener("touchend", function (event) {
-    if (!isAnimating && mouseDown && isPerspective) {
-        canvas.style.cursor = "default";
-        mouseDown = false;
-    }
-});
-
-document.addEventListener("touchmove", function (event) {
-    if (event.target == canvas) {
-
-        // disable scrolling
-        event.preventDefault();
-        event.stopPropagation();
-
-        if (!isAnimating && mouseDown) {
-            var mouseX = event.touches[0].clientX;
-            var mouseY = event.touches[0].clientY;
-
-            var rotX = camera.sensitivity * (mouseX - mouseLastX) / 100;
-            var rotY = camera.sensitivity * (mouseY - mouseLastY) / 100;
-
-            camera.setOrientation(rotate(camera.orientation, vec3(0.0, 1.0, 0.0), radians(-rotX)));
-            camera.setOrientation(rotate(camera.orientation, normalize(cross(camera.orientation, camera.worldUp)), radians(rotY)));
-
-            mouseLastX = mouseX;
-            mouseLastY = mouseY;
-        }
-    }
-});
-
-var counter;
-var count = 0;
-
-function moveCameraUp() {
-    counter = setInterval(function() {
-        if (!isAnimating) {
-            if (isPerspective) {
-                camera.setPosition(add(camera.position, scale(camera.speed, camera.worldUp)));
-            } else {
-                orthoSize += 0.1 * Math.min(n, m);
-                orthoEye = vec3(camera.position[0], orthoSize, camera.position[2]);
-                orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
-                camera.projectionMatrix = orthoMatrix;
-                camera.setPosition(orthoEye);
-            }
-        }
-    }, 25);
-}
-
-function moveCameraDown() {
-    counter = setInterval(function() {
-        if (!isAnimating) {
-            if (isPerspective) {
-                camera.setPosition(add(camera.position, scale(-camera.speed, camera.worldUp)));
-            } else {
-                orthoSize -= 0.1 * Math.min(n, m);
-                orthoEye = vec3(camera.position[0], orthoSize, camera.position[2]);
-                orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
-                camera.projectionMatrix = orthoMatrix;
-                camera.setPosition(orthoEye);
-            }
-        }
-    }, 25);
-}
-
-function moveCameraLeft() {
-    counter = setInterval(function() {
-        if (!isAnimating) {
-            if (isPerspective) {
-                camera.setPosition(add(camera.position, scale(camera.speed, normalize(cross(camera.orientation, camera.worldUp)))));
-            } else {
-                camera.setPosition(add(camera.position, scale(camera.speed, vec3(1.0, 0.0, 0.0))));
-            }
-        }
-    }, 25);
-}
-
-function moveCameraRight() {
-    counter = setInterval(function() {
-        if (!isAnimating) {
-            if (isPerspective) {
-                camera.setPosition(add(camera.position, scale(-camera.speed, normalize(cross(camera.orientation, camera.worldUp)))));
-            } else {
-                camera.setPosition(add(camera.position, scale(-camera.speed, vec3(1.0, 0.0, 0.0))));
-            }
-        }
-    }, 25);
-}
-
-function moveCameraForward() {
-    counter = setInterval(function() {
-        if (!isAnimating) {
-            if (isPerspective) {
-                camera.setPosition(add(camera.position, scale(-camera.speed, camera.orientation)));
-            } else {
-                camera.setPosition(add(camera.position, scale(camera.speed, vec3(0.0, 0.0, 1.0))));
-            }
-        }
-    }, 25);
-}
-
-function moveCameraBackward() {
-    counter = setInterval(function() {
-        if (!isAnimating) {
-            if (isPerspective) {
-                camera.setPosition(add(camera.position, scale(camera.speed, camera.orientation)));
-            } else {
-                camera.setPosition(add(camera.position, scale(-camera.speed, vec3(0.0, 0.0, 1.0))));
-            }
-        }
-    }, 25);
-}
-
-function stopCamera() {
+function panCamera(deltaX, deltaY) {
     if (!isAnimating) {
-        clearInterval(counter);
+        var panX = -camera.sensitivity * deltaX / 1000;
+        var panY = -camera.sensitivity * deltaY / 1000;
+
+        if (isPerspective) {
+            var newPosition = add(camera.position, add(scale(panX, normalize(cross(camera.orientation, camera.worldUp))), scale(panY, camera.worldUp)));
+            camera.setPosition(newPosition);
+        } else {
+            var newPosition = add(camera.position, add(scale(panX, vec3(1.0, 0.0, 0.0)), scale(panY, vec3(0.0, 0.0, 1.0))));
+            camera.setPosition(newPosition);
+        }
+    }
+}
+
+function zoomCamera(delta) {
+    if (!isAnimating) {
+        var zoom = camera.sensitivity * delta / 10000;
+
+        if (isPerspective) {
+            var newPosition = add(camera.position, scale(zoom, camera.orientation));
+            camera.setPosition(newPosition);
+        } else {
+            orthoSize += zoom * Math.min(n, m);
+            orthoEye = vec3(camera.position[0], orthoSize, camera.position[2]);
+            orthoMatrix = ortho(-orthoSize * aspectRatio, orthoSize * aspectRatio, -orthoSize, orthoSize, 0.1, 100.0);
+            camera.projectionMatrix = orthoMatrix;
+            camera.setPosition(orthoEye);
+        }
     }
 }
 
