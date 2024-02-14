@@ -146,7 +146,7 @@ class Model {
         var obj = new OBJ();
 
         // get obj file contents
-        const objResponse = await fetch("https://thecpmills.com/mqp/res/models/" + fileName);
+        const objResponse = await fetch("https://thecpmills.com/pages/projects/bliss/res/models/" + fileName);
         obj.objFile = await objResponse.text();
 
         // Split and sanitize OBJ file input
@@ -168,7 +168,7 @@ class Model {
         var materialLibraryName = line.split(" ")[1];
 
         // get MTL file contents
-        const mtlResponse = await fetch("https://thecpmills.com/mqp/res/models/" + materialLibraryName);
+        const mtlResponse = await fetch("https://thecpmills.com/pages/projects/bliss/res/models/" + materialLibraryName);
         var mtlFile = await mtlResponse.text();
 
         // parse MTL file
