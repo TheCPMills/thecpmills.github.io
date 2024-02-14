@@ -21,13 +21,13 @@ function fillTable() {
     var x = xBox.value;
     var y = yBox.value;
 
-    // if more than 15 characters, only take the first 15
-    if (x.length > 15) {
-        x = x.substring(0, 15);
+    // if more than 10 characters, only take the first 10
+    if (x.length > 10) {
+        x = x.slice(0, 10);
         xBox.value = x;
     }
-    if (y.length > 15) {
-        y = y.substring(0, 15);
+    if (y.length > 10) {
+        y = y.slice(0, 10);
         yBox.value = y;
     }
 
@@ -196,6 +196,72 @@ function generateSVGTable(x, y, cellWidth, cellHeight) {
     return table;
 }
 
+function displayLCSInformation(x, y, lcs) {
+    // clear the configurations
+    lcsConfigurations.innerHTML = "<h3>Configurations of \"" + lcs + "\"</h3>";
+
+    // make a table
+    var table = document.createElement("table");
+    table.setAttribute("border", "0");
+    table.setAttribute("cellspacing", "0");
+    table.setAttribute("cellpadding", "0");
+    table.setAttribute("width", "50%");
+    table.setAttribute("height", "100%");
+
+    // add table to the configurations and center it
+    lcsConfigurations.appendChild(table);
+    lcsConfigurations.setAttribute("align", "center");
+
+    // add header row
+    var headerRow = document.createElement("tr");
+    table.appendChild(headerRow);
+
+    // add header cells
+    var headerCell = document.createElement("th");
+    headerCell.innerHTML = "<b>Configurations in \"" + x + "\"</b>";
+    headerRow.appendChild(headerCell);
+
+    headerCell = document.createElement("th");
+    headerCell.innerHTML = "<b>Configurations in \"" + y + "\"</b>";
+    headerRow.appendChild(headerCell);
+
+    // add the configurations
+    var configurationsX = configurations(x, lcs);
+    var configurationsY = configurations(y, lcs);
+
+    // make another row
+    var row = document.createElement("tr");
+    table.appendChild(row);
+
+    var xCell = document.createElement("td");
+    xCell.setAttribute("valign", "top");
+    xCell.setAttribute("align", "center");
+
+    var yCell = document.createElement("td");
+    yCell.setAttribute("valign", "top");
+    yCell.setAttribute("align", "center");
+
+    for (let configurationX of configurationsX) {
+        if (xCell.innerHTML != "") {
+            xCell.innerHTML += "<br>";
+        }
+        xCell.innerHTML += x.split('').map((char, index) => configurationX.includes(index) ? "<span class=\"included\">" + char + "</span>" : char).join('');
+    }
+
+    for (let configurationY of configurationsY) {
+        if (yCell.innerHTML != "") {
+            yCell.innerHTML += "<br>";
+        }
+        yCell.innerHTML += y.split('').map((char, index) => configurationY.includes(index) ? "<span class=\"included\">" + char + "</span>" : char).join('');
+    }
+
+    row.appendChild(xCell);
+    row.appendChild(yCell);
+
+    // animate the backtracking
+    animateBacktracking(lcs);
+}
+
 function animateBacktracking(lcs) {
     var backtracking = findBacktracking(lcsTable, lcs);
     clearBlueObjects();
@@ -284,80 +350,6 @@ function animateBacktracking(lcs) {
     }, 500 * (backtracking.length - 1) + 1000);
 }
 
-function displayLCSInformation(x, y, lcs) {
-    // clear the configurations
-    lcsConfigurations.innerHTML = "<h3>Configurations of \"" + lcs + "\"</h3>";
-
-    // make a table
-    var table = document.createElement("table");
-    table.setAttribute("border", "0");
-    table.setAttribute("cellspacing", "0");
-    table.setAttribute("cellpadding", "0");
-    table.setAttribute("width", "50%");
-    table.setAttribute("height", "100%");
-
-    // add table to the configurations and center it
-    lcsConfigurations.appendChild(table);
-    lcsConfigurations.setAttribute("align", "center");
-
-    // add header row
-    var headerRow = document.createElement("tr");
-    table.appendChild(headerRow);
-
-    // add header cells
-    var headerCell = document.createElement("th");
-    headerCell.innerHTML = "<b>Configurations in \"" + x + "\"</b>";
-    headerRow.appendChild(headerCell);
-
-    headerCell = document.createElement("th");
-    headerCell.innerHTML = "<b>Configurations in \"" + y + "\"</b>";
-    headerRow.appendChild(headerCell);
-
-    // add the configurations
-    var configurationsX = configurations(x, lcs);
-    var configurationsY = configurations(y, lcs);
-
-    // make another row
-    var row = document.createElement("tr");
-    table.appendChild(row);
-
-    var xCell = document.createElement("td");
-    xCell.setAttribute("valign", "top");
-    xCell.setAttribute("align", "center");
-
-    var yCell = document.createElement("td");
-    yCell.setAttribute("valign", "top");
-    yCell.setAttribute("align", "center");
-
-    for (let configurationX of configurationsX) {
-        if (xCell.innerHTML != "") {
-            xCell.innerHTML += "<br>";
-        }
-        xCell.innerHTML += x.split('').map((char, index) => configurationX.includes(index) ? "<span class=\"included\">" + char + "</span>" : char).join('');
-    }
-
-    for (let configurationY of configurationsY) {
-        if (yCell.innerHTML != "") {
-            yCell.innerHTML += "<br>";
-        } 
-        yCell.innerHTML += y.split('').map((char, index) => configurationY.includes(index) ? "<span class=\"included\">" + char + "</span>" : char).join('');
-    }
-
-    row.appendChild(xCell);
-    row.appendChild(yCell);
-
-    // animate the backtracking
-    animateBacktracking(lcs);
-}
-
-function clearBlueObjects() {
-    var blueObjects = document.querySelectorAll("[stroke='blue']");
-    for (var i = 0; i < blueObjects.length; i++) {
-        blueObjects[i].remove();
-    }
-
-}
-
 // lcs dynamic programming algorithm    
 function LCSTable(x, y) {
     let n = x.length;
@@ -438,18 +430,20 @@ function configurations(x, y) {
     return C;
 }
 
+// find the indices of the subsequence
 function getSubsequenceIndices(str, lcs) {
     var indices = [];
     // find last index of each character in the lcs
     for (var i = lcs.length - 1; i >= 0; i--) {
         var index = str.lastIndexOf(lcs[i]);
         indices.push(index);
-        str = str.substring(0, index);
+        str = str.slice(0, index);
     }
     indices.reverse();
     return indices;
 }
 
+// find the backtracking path
 function findBacktracking(table, lcs) {
     var x = xBox.value;
     var y = yBox.value;
@@ -501,3 +495,12 @@ function findBacktracking(table, lcs) {
     backtracking.reverse();
     return backtracking;
 }
+
+// clear all blue objects
+function clearBlueObjects() {
+    var blueObjects = document.querySelectorAll("[stroke='blue']");
+    for (var i = 0; i < blueObjects.length; i++) {
+        blueObjects[i].remove();
+    }
+}
+

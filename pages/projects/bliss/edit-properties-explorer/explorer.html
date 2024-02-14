@@ -243,34 +243,66 @@
                 text-align: center;
                 float: center;
             }
+
+            table {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            td.disabled {
+                background-color: grey;
+            }
         </style>
     </head>
         
-    <body onload="main()">
+    <body>
         <div class="content">
-            <h1>LCS Matrix Properties Explorer</h1>
-            <div style="width: 51%; margin-top: 0.5%; margin-left: 6.25%; float: left;">
+            <h1>Edit Properties Explorer</h1>
+            <div id="left" style="width: 51%; margin-top: 0.5%; margin-left: 6.25%; float: left;">
                 <canvas id="window" width="800" height="600">
                     Your browser does not support HTML5
                 </canvas>
+
+                <div id="computer-controls">
+                    <h3>How To Use:</h3>
+                    WASD - Move camera <br />
+                    Space/Shift - Move camera up/down <br />
+                    Mouse - Rotate camera <br />
+                    Z - Toggle Perspective/Orthographic View <br />
+                    R - Reset Camera <br />
+                </div>
             </div>
-            <div id="panel" style="width: 30%; margin-top: 0.5%; margin-right: 6.25%; float: right;">
-                <div id="matrixDimensions" style="border: 1px solid black;">
+
+            <div id="right" style="width: 30%; margin-top: 0.5%; margin-right: 6.25%; float: right;">
+                <div id="mobile-controls" style="display: flex; justify-content: center;">
+                    <button id="reset" onclick="resetCamera()" style="width: 50px; height: 50px;">Reset</button>
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <button id="perspective" onclick="togglePerspective()" style="width: 100px; height: 50px;">Toggle
+                        Perspective</button>
+                </div>
+
+                <div id="break0"></div>
+                
+                <div id="matrixDimensions" style="border: 1px solid black; text-align: center;">
                     <h4>Matrix Dimensions:</h4>
                     <label for="n">n: </label>
                     <input type="number" id="n" name="n" min="1" max="10" />
                     <label for="m">m: </label>
                     <input type="number" id="m" name="m" min="1" max="10" />
                     <br /><br />
-                    <button onclick="changeMatrix()">Update Matrix</button>
+                    <button id="dimensionsButton" onclick="changeMatrix()">Update Matrix</button>
                     <br /><br />
-
                 </div>
+                
                 <div id="break1"></div>
-                <div id="lcsInformation" style="border: 1px solid black;">
-                    <h4>Enter Two Strings:</h4>
-                    &nbsp;&nbsp; <input type="text" id="x-box" name="x" size="10">
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+                <button style="width: 100%;" onclick="toggleDivs(['lcsInformation'])"><h4>Longest Common Subsequence &#9662;</h4></button>
+                <div id="lcsInformation" style="border: 1px solid black; text-align: center;">
+                    <br /><br />
+                    <label for="x-box">x: </label>
+                    <input type="text" id="x-box" name="x" size="10">
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <label for="y-box">y: </label>
                     <input type="text" id="y-box" name="y" size="10"> &nbsp;&nbsp;
                     <br /><br />
                     <button id="lcs-button" onclick="changeLCS()">Update LCS</button>
@@ -280,35 +312,53 @@
                     <label id="lcs-set">Set of Longest Common Subsequences: {}</label>
                     <br /><br />
                 </div>
+
                 <div id="break2"></div>
-                <div id="compareLCS" style="border: 1px solid black;">
-                    <h4>kth Character Effect:</h4>
-                    k: <input type="text" id="k-box" name="k" size="5"> &nbsp;&nbsp;
-                    <button id="k-button" onclick="changeK()">Update k</button>
+
+                <button style="width: 100%;" onclick="toggleDivs(['editOperations'])"><h4>Edit Operations &#9662;</h4></button>
+                <div id="editOperations" style="border: 1px solid black; text-align: center;">
                     <br /><br />
-                    <label id="zBox">New Second String: -</label>
+                    <label for="substitute">Substitute</label>
+                    <input type="radio" id="substitute" name="operation" value="substitute" checked onclick="setOperation()">
+                    &nbsp;&nbsp;
+                    <label for="permute">Permute</label>
+                    <input type="radio" id="permute" name="operation" value="permute" onclick="setOperation()">
+                    &nbsp;&nbsp;
+                    <label for="complement">Complement</label>
+                    <input type="radio" id="complement" name="operation" value="complement" onclick="setOperation()">
+                    &nbsp;&nbsp;
+                    <label for="reverse">Reverse</label>
+                    <input type="radio" id="reverse" name="operation" value="reverse" onclick="setOperation()">
                     <br /><br />
-                    <label id="k-length">Length of Longest Common Subsequence: 0</label>
+
+                    <div id="substitution" style="display: block;">
+                        <label for="substitution-k-box">Index: </label>
+                        <input type="text" id="substitution-k-box" name="substitution-k" size="5">
+                        <br /><br />
+                    </div>
+
+                    <div id="permutation" style="display: none;">
+                        <label for="permutation-box">Permutation: </label>
+                        <table id="permutation-box">
+                        </table>
+                        <br />
+                    </div>
+
+                    <button id="operation-button" onclick="performOperation()">Perform Operation</button>
+                    <br /><br />
+                    <label for="new-x">new x:</label>
+                    <input type="text" id="new-x" name="new-x" size="5" disabled>
+                    &nbsp;&nbsp;
+                    <label for="new-y">new y:</label>
+                    <input type="text" id="new-y" name="new-y" size="5" disabled>
+                    <br /><br />
+                    <label id="new-length">Length of Longest Common Subsequence: 0</label>
                     <br />
-                    <label id="k-set">Set of Longest Common Subsequences: {}</label>
+                    <label id="new-set">Set of Longest Common Subsequences: {}</label>
                     <br /><br />
                 </div>
             </div>
             <div style="clear: both;"></div>
-            
-            <div id="mobileControls">
-                <button id="reset" onclick="resetCamera()" style="width: 50px; height: 50px;">Reset</button>
-                <button id="perspective" onclick="togglePerspective()" style="width: 100px; height: 50px;">Toggle Perspective</button>
-            </div>
-            
-            <div id="computerControls">
-                <h3>How To Use:</h3>
-                WASD - Move camera <br />
-                Space/Shift - Move camera up/down <br />
-                Mouse - Rotate camera <br />
-                Z - Toggle Perspective/Orthographic View <br />
-                R - Reset Camera <br />
-            </div>
         </div>
     </body>
 </html>

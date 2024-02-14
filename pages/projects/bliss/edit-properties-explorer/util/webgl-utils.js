@@ -365,11 +365,27 @@ function transpose(m) {
 }
 
 function determinant(m) {
+    var result = [];
+
+    if (!m.matrix) {
+        return "determinant(): trying to get the determinant of a non-matrix";
+    }
+
     // TODO: Implement this
+
+    return result;
 }
 
 function inverse(m) {
+    var result = [];
+
+    if (!m.matrix) {
+        return "inverse(): trying to get the inverse of a non-matrix";
+    }
+
     // TODO: Implement this
+
+    return result;
 }
 
 // Vector-Specific Operations
@@ -591,28 +607,28 @@ function lookAt(eye, spot, worldUp) {
     return result;
 }
 
-function ortho(left, right, bottom, top, near, far) {
+function ortho(width, height, near, far) {
+    return cuboid(-width / 2.0, width / 2.0, -height / 2.0, height / 2.0, near, far);
+}
+
+function cuboid(left, right, bottom, top, near, far) {
     if (left == right) {
-        throw "ortho(): left and right are equal";
+        throw "cuboid(): left and right are equal";
     }
     if (bottom == top) {
-        throw "ortho(): bottom and top are equal";
+        throw "cuboid(): bottom and top are equal";
     }
     if (near == far) {
-        throw "ortho(): near and far are equal";
-    }
-
-    var width = right - left;
-    var height = top - bottom;
-    var depth = far - near;
-
-    var result = mat4();
-    result[0][0] = 2.0 / width;
-    result[1][1] = 2.0 / height;
-    result[2][2] = -2.0 / depth;
-    result[0][3] = -(left + right) / width;
-    result[1][3] = -(top + bottom) / height;
-    result[2][3] = -(far + near) / depth;
+        throw "cuboid(): near and far are equal";
+    } 
+    
+    var result = new mat4();
+    result[0][0] = 2.0 / (right - left);
+    result[1][1] = 2.0 / (top - bottom);
+    result[2][2] = -2.0 / (far - near);
+    result[0][3] = -(right + left) / (right - left);
+    result[1][3] = -(top + bottom) / (top - bottom);
+    result[2][3] = -(far + near) / (far - near);
 
     return result;
 }

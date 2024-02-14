@@ -69,7 +69,3 @@ class Texture {
         return image;
     }
 }
-
-function loadTexture(textureURL) {
-    
-}

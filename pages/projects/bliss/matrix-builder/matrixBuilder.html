@@ -22,27 +22,47 @@
             padding: 10px;
             text-align: center;
         }
+
+        #infoPopup {
+            width: 400px;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            background-color: white;
+            border: 1px solid black;
+            border-radius: 6px;
+            position: absolute;
+            display: none;
+        }
+
+        /* #infoPopup::before {
+            content: "";
+            width: 12px;
+            height: 12px;
+            transform: rotate(45deg);
+            background-color: white;
+            border: 1px solid black;
+            position: absolute;
+            left: -6px;
+            top: 68px;
+        } */
     </style>
 
     <link rel="icon" type="image/x-icon" href="img/favicon.ico">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom/dist/chartjs-plugin-zoom.min.js"></script>
-   
+    <script src="builderScript.js"></script>
 </head>
 
 <body onload="setup();">
     <div class="content">
         <div class="center">
-            <h1>Subsequence Distribution Visualizer</h1>
+            <h1>LCS Matrix Builder</h1>
             <label for="n">n: </label>
-            <input type="number" id="n" name="n" min="1" max="10" value="1" size="5" />
+            <input type="number" id="n" name="n" min="1" max="5" value="1" size="5" oninput="generateMatrixShell();" />
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             <label for="m">m: </label>
-            <input type="number" id="m" name="m" min="1" max="10" value="1" size="5" />
+            <input type="number" id="m" name="m" min="1" max="5" value="1" size="5" oninput="generateMatrixShell();"/>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            <button onclick="generateDistribution();">Generate Distibution</button>
+            <button onclick="fillMatrix();">Fill Matrix</button>
 
             <!-- prevent typing -->
             <script>
@@ -54,14 +74,12 @@
                 });
             </script>
 
-            <br><br>
-            <div style="width: 100%;">
-                <canvas id="chart"></canvas>
-            </div>
+            <p>Select the cells whose values are known:</p>
+            <div id="table"></div>
+
+            <div id="infoPopup"></div>
         </div>
     </div>
-
-    <script type="text/javascript" src="chartHandler.js"></script>
 </body>
 
 </html>

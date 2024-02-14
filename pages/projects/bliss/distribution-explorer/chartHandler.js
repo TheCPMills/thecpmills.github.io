@@ -8,14 +8,34 @@ function setup() {
     nBox.value = "1";
     mBox.value = "1";
 
+    // add listener to nBox and mBox
+    // if mBox tries to be less than nBox, set mBox to nBox
+    // if nBox tries to be greater than mBox, set nBox to mBox
+    // if nBox or mBox is not a number, set it to 1
+    nBox.addEventListener('input', function() {
+        if (parseInt(nBox.value) > parseInt(mBox.value)) {
+            mBox.value = nBox.value;
+        } else if (parseInt(nBox.value) < 1) {
+            nBox.value = "1";
+        }
+    });
+
+    mBox.addEventListener('input', function() {
+        if (parseInt(mBox.value) < parseInt(nBox.value)) {
+            nBox.value = mBox.value;
+        } else if (parseInt(mBox.value) < 1) {
+            mBox.value = "1";
+        }
+    });
+
     setupDefaultCanvas();
 }
 
 function setupDefaultCanvas() {
     // make chartArea fill the screen minus the header
-    chartArea.width = window.innerWidth;
-    chartArea.height = window.innerHeight - 150;
-
+    chartArea.width = window.innerWidth / 2;
+    chartArea.height = window.innerHeight / 2 - 150;
+    chartArea.style.border = "1px solid black";
 
     // put text that says "Enter values for n and m to generate a distribution"
     var ctx = chartArea.getContext('2d');
@@ -30,6 +50,7 @@ async function generateDistribution() {
     if (chart != null) {
         chart.destroy();
     }
+    chartArea.style.border = "";
 
     var n = parseInt(nBox.value);
     var m = parseInt(mBox.value);
@@ -52,7 +73,9 @@ async function generateDistribution() {
         }
     }
 
-    console.log(barColors);
+    // resize the canvas height proportional to the number of strings
+    chartArea.parentNode.style.width = "50%";
+    chartArea.height = window.innerHeight / 2 - 150 + 50 * Math.pow(2, Math.min(n, m));
 
     const jsonResponse = await fetch("https://thecpmills.com/mqp/res/files/" + fileName);
     var json = await jsonResponse.text();
@@ -66,24 +89,23 @@ async function generateDistribution() {
 
     const scaleOptions = {
         x: {
-            title: {
-                display: true,
-                text: 'Longest Common Subsequence'
-                    }
-        },
-        y: {
             beginAtZero: true,
             title: {
                 display: true,
                 text: 'Number of Occurrences'
+            }
+        },
+        y: {
+            title: {
+                display: true,
+                text: 'Longest Common Subsequence'
                     }
         }
     };
 
     const zoomOptions = {
         limits: {
-            x: { min: 0, max: 200 },
-            y: { min: 0, max: 200 }
+            x: { min: 0, max: Math.max(...occurrences) }
         },
         pan: {
             enabled: true,
@@ -109,6 +131,7 @@ async function generateDistribution() {
             }]
         },
         options: {
+            indexAxis: 'y',
             scales: scaleOptions,
             plugins: {
                 legend: {

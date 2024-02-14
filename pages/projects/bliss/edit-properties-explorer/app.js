@@ -1,10 +1,11 @@
 // =================
 // ==== GLOBALS ====
 // =================
-var canvas, gl, shaderProgram, controller;
+var canvas, gl, shaderProgram, controller, onMobile;
 var width, height, aspectRatio;
 var xBox, yBox, lcsButton;
-var kBox, kButton;
+var operationRadio, substitutionSection, permutationSection, operation = "substitute";
+var substitutionKBox, permutationBox, operationButton;
 var lcsGenerated;
 var n = 1;
 var m = 1;
@@ -39,9 +40,11 @@ var camera;
 // ==== PROGRAM ====
 // =================
 function main() {
+    // check platform
+    onMobile = mobileAndTabletCheck();
+
     // Create the window
     canvas = document.getElementById('window');
-    setup();
 
     document.getElementById("n").value = n;
     document.getElementById("m").value = m;
@@ -49,17 +52,56 @@ function main() {
     xBox = document.getElementById("x-box");
     yBox = document.getElementById("y-box");
     lcsButton = document.getElementById("lcs-button");
-    kBox = document.getElementById("k-box");
-    kButton = document.getElementById("k-button");
+    substitutionKBox = document.getElementById("substitution-k-box");
+    permutationBox = document.getElementById("permutation-box");
+    operationButton = document.getElementById("operation-button");
     lcsGenerated = false;
+
+    operationRadio = document.getElementsByName("operation");
+    substitutionSection = document.getElementById("substitution");
+    permutationSection = document.getElementById("permutation");
 
     xBox.value = "";
     yBox.value = "";
     lcsButton.disabled = true;
-    kBox.value = "";
-    kButton.disabled = true;
+    substitutionKBox.value = "";
+    permutationBox.value = "";
+    operationRadio[0].checked = true;
+    operation = "substitute";
+    operationButton.disabled = true;
+
+    setup();
+
+    document.getElementById("n").onkeyup = function () {
+        if (this.value.length > 0) {
+            var n = parseInt(this.value);
+            if (isNaN(n) || n < 1 || n > 10) {
+                this.value = 1;
+            }
+            document.getElementById("dimensionsButton").disabled = false;
+        } else {
+            document.getElementById("dimensionsButton").disabled = true;
+        }
+    }
+
+    document.getElementById("m").onkeyup = function () {
+        if (this.value.length > 0) {
+            var m = parseInt(this.value);
+            if (isNaN(m) || m < 1 || m > 10) {
+                this.value = 1;
+            }
+            document.getElementById("dimensionsButton").disabled = false;
+        } else {
+            document.getElementById("dimensionsButton").disabled = true;
+        }
+    }
 
     xBox.onkeyup = function () {
+        // clear if not a binary string
+        if (!/^[01]*$/.test(xBox.value)) {
+            xBox.value = "";
+        }
+
         if (xBox.value.length != n || yBox.value.length != m) {
             lcsButton.disabled = true;
         } else {
@@ -68,6 +110,11 @@ function main() {
     }
 
     yBox.onkeyup = function () {
+        // clear if not a binary string
+        if (!/^[01]*$/.test(yBox.value)) {
+            yBox.value = "";
+        }
+
         if (xBox.value.length != n || yBox.value.length != m) {
             lcsButton.disabled = true;
         } else {
@@ -75,14 +122,19 @@ function main() {
         }
     }
 
-    kBox.onkeyup = function () {
-        var k = parseInt(kBox.value);
-        if (kBox.value.length > 0 && (k >= 0 && k < m) && lcsGenerated) {
-            kButton.disabled = false;
+    substitutionKBox.onkeyup = function () {
+        var k = parseInt(substitutionKBox.value);
+        if (isNaN(k) || k < 0 || k >= m) {
+            substitutionKBox.value = "";
+        }
+        if (substitutionKBox.value.length > 0 && lcsGenerated) {
+            operationButton.disabled = false;
         } else {
-            kButton.disabled = true;
+            operationButton.disabled = true;
         }
     }
+
+    changeMatrix();
 
     // specify the viewport in the window
     gl = WebGLUtils.setupWebGL(canvas);
@@ -93,7 +145,7 @@ function main() {
         return;
     }
 
-    // Set viewport
+    // set viewport
     width = canvas.width;
     height = canvas.height;
     aspectRatio = width / height;
@@ -134,35 +186,43 @@ window.mobileAndTabletCheck = function () {
 };
 
 function setup() {
-    registerController();
-
-    var onMobile = mobileAndTabletCheck();
     if (onMobile) { // if on a mobile device
         canvas.width = window.innerWidth * 0.875;
         canvas.height = canvas.width * 0.6667;
 
-        var panel = document.getElementById("panel");
+        var panel = document.getElementById("right");
         panel.parentNode.removeChild(panel); // remove div from main div
         document.body.appendChild(panel); // add div to body
         panel.style.width = canvas.width + "px";
 
-        // remove computerControls div
-        var computerControls = document.getElementById("computerControls");
+        // remove computer controls div
+        var computerControls = document.getElementById("computer-controls");
         computerControls.parentNode.removeChild(computerControls);
+
+        // clear style on left div
+        var left = document.getElementById("left");
+        left.style.width = "100%";
+        left.style.marginTop = "0";
+        left.style.marginLeft = "0";
+        left.style.float = "none";
+
+        document.getElementById("break0").style.height = canvas.height * 0.0536 + "px";
     } else { // if on a computer
         canvas.width = window.innerWidth * 0.51;
         canvas.height = canvas.width * 0.6667;
 
-        // remove mobileControls div
-        var mobileControls = document.getElementById("mobileControls");
+        // remove mobile controls div
+        var mobileControls = document.getElementById("mobile-controls");
+        var break0 = document.getElementById("break0");
         mobileControls.parentNode.removeChild(mobileControls);
+        break0.parentNode.removeChild(break0);
+
     }
 
-    document.getElementById("matrixDimensions").style.height = canvas.height * 0.2362 + "px";
     document.getElementById("break1").style.height = canvas.height * 0.0536 + "px";
-    document.getElementById("lcsInformation").style.height = canvas.height * 0.3256 + "px";
     document.getElementById("break2").style.height = canvas.height * 0.0536 + "px";
-    document.getElementById("compareLCS").style.height = canvas.height * 0.3256 + "px";
+
+    registerController();
 }
 
 function render() {
@@ -278,13 +338,7 @@ function changeMatrix() {
     n = parseInt(nInput.value);
     m = parseInt(mInput.value);
 
-    // if n or m is not a number
-    if (isNaN(n) || isNaN(m) || n < 1 || m < 1 || n > 5 || m > 5) {
-        alert("Invalid dimensions. Please enter dimensions between 1 and 5.");
-        return;
-    }
-
-    if (n >= 4 || m >= 4) {
+    if (n > 5 || m > 5) {
         var answer = confirm("Larger models may take longer than usual to render.\nWould you like to continue?");
         if (!answer) {
             return;
@@ -297,19 +351,79 @@ function changeMatrix() {
     document.getElementById("lcs-set").innerHTML = "Set of Longest Common Subsequences: {}";
     lcsButton.disabled = true;
     lcsGenerated = false;
-    kBox.value = "";
-    document.getElementById("zBox").innerHTML = "New Second String: -";
-    document.getElementById("k-length").innerHTML = "Length of Longest Common Subsequence: 0";
-    document.getElementById("k-set").innerHTML = "Set of Longest Common Subsequences: {}";
-    kButton.disabled = true;
+
+    substitutionKBox.value = "";
+    permutationBox.value = "";
+    document.getElementById("new-x").value = "";
+    document.getElementById("new-y").value = "";
+    document.getElementById("new-length").innerHTML = "Length of Longest Common Subsequence: 0";
+    document.getElementById("new-set").innerHTML = "Set of Longest Common Subsequences: {}";
+    operationButton.disabled = true;
+
+    while (permutationBox.rows.length > 0) {
+        permutationBox.deleteRow(0);
+    }
+
+    var header = permutationBox.insertRow();
+    var permRow = permutationBox.insertRow();
+    permRow.id = "perm-row";
+    for (var i = 0; i < m; i++) {
+        var headerCell = header.insertCell();
+        var cell = permRow.insertCell();
+
+        var headerInput = document.createElement("input");
+        headerInput.type = "text";
+        headerInput.id = "index-" + i;
+        headerInput.size = 2;
+        headerInput.disabled = true;
+        headerInput.value = i;
+
+        var cellInput = document.createElement("input");
+        cellInput.type = "text";
+        cellInput.id = "perm-" + i;
+        cellInput.size = 2;
+        cellInput.maxLength = 2;
+        cellInput.onkeyup = function () {
+            if (this.value.length > 0) {
+                var k = parseInt(this.value);
+                if (k < 0 || k >= m) {
+                    this.value = "";
+                }
+
+                var allFilled = true;
+                var allUnique = true;
+                var permSet = new Set();
+                for (var j = 0; j < m; j++) {
+                    var cell = document.getElementById("perm-" + j);
+                    if (cell.value.length == 0) {
+                        allFilled = false;
+                    } else {
+                        permSet.add(cell.value);
+                    }
+                }
+                if (permSet.size < m) {
+                    allUnique = false;
+                }
+            } else {
+                allFilled = false;
+            }
+
+            if (allFilled && allUnique) {
+                operationButton.disabled = false;
+            } else {
+                operationButton.disabled = true;
+            }
+        }
+
+        headerCell.appendChild(headerInput);
+        cell.appendChild(cellInput);
+    }
     
     initializeMLC(shaderProgram);
     isPerspective = true;
     camera.isPerspective = true;
     time = -1.0;
     alpha = 0.01 * Math.min(n, m);
-
-    console.log(camera.projectionMatrix);
 }
 
 function changeLCS() {
@@ -331,42 +445,75 @@ function changeLCS() {
     lcsSetLabel.innerHTML = "Set of Longest Common Subsequences: {" + setOfLCSs + "}";
 
     lcsGenerated = true;
-    var k = parseInt(kBox.value);
-    if (kBox.value.length > 0 && (k >= 0 && k < m)) {
-        kButton.disabled = false;
+    substitutionKBox.value = "";
+
+    var permRow = document.getElementById("perm-row");
+    for (var i = 0; i < m; i++) {
+        var cell = permRow.cells[i];
+        var cellInput = cell.children[0];
+        cellInput.value = "";
     }
+
+    document.getElementById("new-x").value = "";
+    document.getElementById("new-y").value = "";
+    document.getElementById("new-length").innerHTML = "Length of Longest Common Subsequence: 0";
+    document.getElementById("new-set").innerHTML = "Set of Longest Common Subsequences: {}";
+    operationButton.disabled = true;
 }
 
-function changeK() {
-    var k = parseInt(kBox.value);
-
+function performOperation() {
     // convert from binary string to int
     var x = parseInt(xBox.value, 2);
     var y = parseInt(yBox.value, 2);
 
-    // complement kth bit from left
-    var z = y ^ (1 << (yBox.value.length - 1 - k));
-    var zBox = z.toString(2);
+    var newX, newY;
+    if (operation == "substitute") {
+        newX = x;
+        newY = y ^ (1 << (yBox.value.length - 1 - parseInt(substitutionKBox.value)));
+    } else if (operation == "permutation") {
+        // convert permutation row to array
+        var perm = [];
+        for (var i = 0; i < m; i++) {
+            var cell = document.getElementById("perm-" + i);
+            perm.push(cell.value);
+        }
 
-    // pad with zeros
-    while (zBox.length < m) {
-        zBox = "0" + zBox;
+        newX = x;
+        newY = permuteChars(yBox.value, perm);
+    } else if (operation == "complement") {
+        newX = x ^ (Math.pow(2, n) - 1);
+        newY = y ^ (Math.pow(2, m) - 1);
+    } else if (operation == "reverse") {
+        newX = parseInt(xBox.value.split("").reverse().join(""), 2);
+        newY = parseInt(yBox.value.split("").reverse().join(""), 2);
     }
 
-    document.getElementById("zBox").innerHTML = "New Second String: " + zBox;
+    var newXBox = newX.toString(2);
+    var newYBox = newY.toString(2);
+
+    // pad with zeros
+    while (newXBox.length < n) {
+        newXBox = "0" + newXBox;
+    }
+    while (newYBox.length < m) {
+        newYBox = "0" + newYBox;
+    }
+
+    document.getElementById("new-x").value = newXBox;
+    document.getElementById("new-y").value = newYBox;
 
     // select mesh
-    var index = x * Math.pow(2, m) + z;
+    var index = newX * Math.pow(2, m) + newY;
     objectModel.selectK(index);
 
     var lcsLength = objectModel.meshes[index].vertices[0].position[1];
-    var setOfLCSs = Array.from(lcsSet(xBox.value, zBox));
+    var setOfLCSs = Array.from(lcsSet(newXBox, newYBox));
 
-    var kLengthLabel = document.getElementById("k-length");
-    kLengthLabel.innerHTML = "Length of Longest Common Subsequence: " + lcsLength;
+    var newLengthLabel = document.getElementById("new-length");
+    newLengthLabel.innerHTML = "Length of Longest Common Subsequence: " + lcsLength;
 
-    var kSetLabel = document.getElementById("k-set");
-    kSetLabel.innerHTML = "Set of Longest Common Subsequences: {" + setOfLCSs + "}";
+    var newSetLabel = document.getElementById("new-set");
+    newSetLabel.innerHTML = "Set of Longest Common Subsequences: {" + setOfLCSs + "}";
 }
 
 function registerController() {
@@ -507,3 +654,64 @@ function resetCamera() {
         time = -1.0;
     }
 }
+
+function setOperation() {
+    substitutionKBox.value = "";
+    permutationBox.value = "";
+    operationButton.disabled = true;
+    if (operationRadio[0].checked) {
+        operation = "substitute";
+        substitutionSection.style.display = "block";
+        permutationSection.style.display = "none";
+    } else if (operationRadio[1].checked) {
+        operation = "permutation";
+        substitutionSection.style.display = "none";
+        permutationSection.style.display = "block";
+    } else if (operationRadio[2].checked) {
+        operation = "complement";
+        substitutionSection.style.display = "none";
+        permutationSection.style.display = "none";
+        operationButton.disabled = false;
+    } else if (operationRadio[3].checked) {
+        operation = "reverse";
+        substitutionSection.style.display = "none";
+        permutationSection.style.display = "none";
+        operationButton.disabled = false;
+    }
+
+    document.getElementById("new-x").value = "";
+    document.getElementById("new-y").value = "";
+    document.getElementById("new-length").innerHTML = "Length of Longest Common Subsequence: 0";
+    document.getElementById("new-set").innerHTML = "Set of Longest Common Subsequences: {}";
+}
+
+function permuteChars(str, perm) {
+    var newStr = "";
+    for (var i = 0; i < str.length; i++) {
+        newStr += str[perm[i]];
+    }
+    return parseInt(newStr, 2);
+}
+
+function toggleDivs(divIds) {
+    for (var i = 0; i < divIds.length; i++) {
+        var div = document.getElementById(divIds[i]);
+        if (div.style.display === "none") {
+            div.style.display = "block";
+        } else {
+            div.style.display = "none";
+        }
+    }
+}
+
+window.onresize = function () {
+    if (!onMobile) {
+        width = canvas.width;
+        height = canvas.height;
+        aspectRatio = width / height;
+        gl.viewport(0, 0, width, height);
+        setup();
+    }
+};
+
+window.onload = main;

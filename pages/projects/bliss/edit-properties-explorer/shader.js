@@ -52,7 +52,6 @@ function createShaderProgram(gl, vertexShaderId, fragmentShaderId) {
     return program;
 }
 
-/*
 // Get a file as a string using AJAX
 function loadFileAJAX(name) {
     var xhr = new XMLHttpRequest(),
@@ -61,7 +60,6 @@ function loadFileAJAX(name) {
     xhr.send(null);
     return xhr.status == okStatus ? xhr.responseText : null;
 };
-
 
 function initShadersFromFiles(gl, vShaderName, fShaderName) {
     function getShader(gl, shaderName, type) {
@@ -91,8 +89,5 @@ function initShadersFromFiles(gl, vShaderName, fShaderName) {
         alert("Could not initialise shaders");
         return null;
     }
-
-    
     return program;
 };
-*/
