@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(3.38514,0,0,2.38285,-108.461,-70.7056)">
+        <ellipse cx="46.811" cy="50.656" rx="14.77" ry="20.983" style="fill:white;"/>
+    </g>
+    <g id="youtube.svg" transform="matrix(2.1875,0,0,2.1875,50,50)">
+        <g transform="matrix(1,0,0,1,-16,-16)">
+            <path d="M31.328,8.271C30.948,6.922 29.896,5.864 28.541,5.49C26.046,4.823 16.016,4.823 16.016,4.823C16.016,4.823 6.005,4.807 3.484,5.49C2.136,5.865 1.079,6.922 0.703,8.271C0.23,10.828 -0.005,13.416 0.006,16.016C0.001,18.599 0.235,21.183 0.703,23.724C1.079,25.073 2.136,26.131 3.484,26.511C5.979,27.178 16.016,27.178 16.016,27.178C16.016,27.178 26.021,27.178 28.541,26.511C29.896,26.131 30.948,25.074 31.328,23.724C31.787,21.183 32.011,18.599 31.995,16.016C32.011,13.416 31.792,10.828 31.328,8.271ZM12.812,20.803L12.812,11.208L21.161,16.016L12.812,20.803Z" style="fill-rule:nonzero;"/>
+        </g>
+    </g>
+</svg>

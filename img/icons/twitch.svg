@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="100%" height="100%" viewBox="0 0 100 100" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+    <g transform="matrix(3.38514,0,0,2.38285,-108.461,-70.7056)">
+        <ellipse cx="46.811" cy="50.656" rx="14.77" ry="20.983" style="fill:white;"/>
+    </g>
+    <g id="twitch.svg" transform="matrix(0.117188,0,0,0.117188,50,50)">
+        <g transform="matrix(1,0,0,1,-256,-256)">
+            <clipPath id="_clip1">
+                <rect x="0" y="0" width="512" height="512"/>
+            </clipPath>
+            <g clip-path="url(#_clip1)">
+                <path d="M391.17,103.47L352.54,103.47L352.54,213.17L391.17,213.17L391.17,103.47ZM285,103L246.37,103L246.37,212.75L285,212.75L285,103ZM120.83,0L24.31,91.42L24.31,420.58L140.14,420.58L140.14,512L236.67,420.58L313.92,420.58L487.69,256L487.69,-0L120.83,0ZM449.07,237.75L371.85,310.87L294.61,310.87L227.01,374.87L227.01,310.87L140.14,310.87L140.14,36.58L449.07,36.58L449.07,237.75Z" style="fill-rule:nonzero;"/>
+            </g>
+        </g>
+    </g>
+</svg>
