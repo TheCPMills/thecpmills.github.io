@@ -49,7 +49,7 @@ Secondary dark:   #fbab25
 
 body {
     overflow-x: hidden;
-    font-family: 'Roboto Slab', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
     background-color: var(--bar);
 }
 
