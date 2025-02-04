@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply text-base font-normal leading-normal;
+}
+
+.background {
+  @apply bg-no-repeat bg-fixed bg-[left_center] bg-cover;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.1)), url("assets/images/blurred_background.jpg");
+}

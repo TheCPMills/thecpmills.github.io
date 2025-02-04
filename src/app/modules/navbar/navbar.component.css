@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.navigation {
+  @apply justify-start flex items-center py-[25px] px-4 border-none bg-transparent fixed inset-x-0 top-0 z-10;
+  flex-flow: row nowrap;
+  transition: padding-top 0.3s, padding-bottom 0.3s;
+}
+
+.navbar-shrink {
+  @apply py-0 bg-bar; 
+  
+  .navbar-brand {
+    font-size: 1.25em;
+  }
+}
+
+.navigation-container {
+  @apply flex-nowrap flex items-center justify-between max-w-[1140px] container px-[15px] m-auto;
+}
+
+.navbar-brand {
+  @apply transition-all duration-[0.3s] text-[#c1c7d4] inline-block py-[0.3125rem] mr-4 text-[1.75rem]/[inherit] whitespace-nowrap;
+  font-family: "Kaushan Script", "Helvetica Neue", Helvetica, Arial, cursive;
+}
+
+.nav-item {
+  @apply block text-[90%] font-normal tracking-[1px] text-[white] transition-[color] duration-[0.1s] ease-[ease-in-out] px-[0.75em] py-[1.1em];
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}

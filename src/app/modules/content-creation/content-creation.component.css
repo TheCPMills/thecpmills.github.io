@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.content-section {
+  @apply block py-[7.5rem] text-white text-center;
+}
+
+.content-creation-container {
+  @apply container px-[15px] m-auto text-left;
+}
+
+.content-section-heading {
+  @apply text-5xl font-bold mb-2 leading-[1.2] bg-berkeleyBlueTranslucent py-4 w-auto rounded-[0.75rem] text-inherit;
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.media-container {
+  @apply flex gap-2;
+}
+
+.media {
+  @apply m-2 w-[50vw] aspect-[16/9];
+}
+
+.description {
+  @apply m-6 bg-berkeleyBlueTranslucent p-6 rounded-[0.75rem];
+}

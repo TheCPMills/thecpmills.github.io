@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+h4 {
+  @apply font-extrabold text-[1.25rem];
+  font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+p {
+  @apply font-extralight text-[0.95rem];
+  font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.content-section {
+    @apply block py-[7.5rem] text-white text-center;
+  }
+
+.project-container {
+  @apply container px-[15px] m-auto;
+}
+
+.content-section-heading {
+  @apply text-5xl font-bold mb-2 leading-[1.2] bg-berkeleyBlueTranslucent py-4 w-[16rem] rounded-[0.75rem] text-inherit ml-auto;
+  font-family: "Montserrat", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.portfolio-container {
+  @apply flex gap-6 bg-berkeleyBlueTranslucent p-6 rounded-[0.75rem];
+}
+
+.portfolio-item {
+    @apply block h-56 w-[33%] relative overflow-hidden;
+}
+
+.caption {
+    @apply flex h-full absolute bg-berkeleyBlueTranslucent p-6 rounded-[0.75rem] z-[1] inset-0 hover:bg-yaleBlueTranslucent hover:h-auto hover:inset-6;
+    transition: inset 0.25s ease-in-out, height 0.25s ease-in-out, background-color 0.25s ease-in-out;
+    
+    &:hover {
+      .project-icon {
+        @apply w-[0%] h-[0%];
+      }
+    }
+}
+
+.caption-container {
+    @apply flex p-5 gap-5;
+}
+
+.caption-content {
+  @apply text-center;
+}
+
+.project-icon {
+  @apply w-32 h-32 aspect-[1];
+  transition: width 0.25s ease-in-out, height 0.25s ease-in-out;
+}
+
+.promotion {
+  @apply font-extrabold m-6 w-[50vw] text-[1rem] bg-berkeleyBlueTranslucent p-6 rounded-[0.75rem] border-berkeleyBlueTranslucent hover:bg-chineseVioletTranslucent hover:border hover:border-solid hover:border-berkeleyBlue;
+  font-family: 'Montserrat', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  transition: background-color 0.25s ease-in-out, border 0.25s ease-in-out;
+}
